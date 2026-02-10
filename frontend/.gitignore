@@ -1,0 +1,115 @@
+# =========================
+# Logs
+# =========================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =========================
+# Dependency directories
+# =========================
+node_modules/
+jspm_packages/
+
+# =========================
+# Production build outputs
+# =========================
+build/
+dist/
+dist-ssr/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+coverage/
+storybook-static/
+
+# =========================
+# Environment files (VERY IMPORTANT)
+# =========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =========================
+# Package manager files
+# (keep lock files unless team decides otherwise)
+# =========================
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# =========================
+# Testing
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# Vite specific
+# =========================
+vite.svg
+
+# =========================
+# Cache folders
+# =========================
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+
+# =========================
+# IDE / Editors
+# =========================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# =========================
+# Local config files
+# =========================
+*.local
+
+# =========================
+# Firebase / Amplify / Serverless (if used)
+# =========================
+.firebase/
+.amplify/
+.serverless/
+
+# =========================
+# Misc
+# =========================
+*.tgz
+*.zip
+*.tar.gz
