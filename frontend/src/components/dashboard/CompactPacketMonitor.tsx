@@ -33,7 +33,7 @@ export const CompactPacketMonitor: React.FC = () => {
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Live Packets</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Packet Monitoring</h3>
         </div>
         <Link to="/packets" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
           View All
@@ -47,7 +47,6 @@ export const CompactPacketMonitor: React.FC = () => {
               <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Time</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Source IP</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Type</th>
-              <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Conf.</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -60,7 +59,6 @@ export const CompactPacketMonitor: React.FC = () => {
                     {packet.classification}
                   </span>
                 </td>
-                <td className="px-4 py-2 text-gray-900 dark:text-gray-300">{(packet.confidence * 100).toFixed(0)}%</td>
               </tr>
             ))}
           </tbody>

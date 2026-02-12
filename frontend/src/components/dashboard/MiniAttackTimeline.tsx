@@ -32,20 +32,20 @@ export const MiniAttackTimeline: React.FC = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 h-full flex flex-col">
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5 h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Recent Events</h3>
         <Link to="/forensics" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
           Timeline
         </Link>
       </div>
 
-      <div className="space-y-2 flex-1">
+      <div className="space-y-4 flex-1">
         {events.map((event, idx) => (
-          <div key={idx} className="flex items-center space-x-3 text-xs">
-            <span className="font-mono text-gray-500 dark:text-gray-400 w-16">{event.timestamp}</span>
-            <span className={`font-semibold w-16 ${getTypeColor(event.type)}`}>{event.type}</span>
-            <span className={`capitalize ${getActionColor(event.action)}`}>{event.action}</span>
+          <div key={idx} className="flex items-center text-xs py-1">
+            <span className="font-mono text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">{event.timestamp}</span>
+            <span className={`font-semibold w-20 flex-shrink-0 ${getTypeColor(event.type)}`}>{event.type}</span>
+            <span className={`capitalize flex-1 ${getActionColor(event.action)}`}>{event.action}</span>
           </div>
         ))}
       </div>
