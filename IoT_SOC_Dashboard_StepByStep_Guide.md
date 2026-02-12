@@ -1,4 +1,4 @@
-# IoT Security Operations Center (SOC) — Cloud Monitoring Admin Dashboard
+# SafeNode — Cloud Monitoring Admin Dashboard
 
 ## Complete Step-by-Step Development Guide
 
