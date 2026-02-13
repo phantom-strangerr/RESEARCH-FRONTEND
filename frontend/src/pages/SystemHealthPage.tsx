@@ -41,11 +41,11 @@ interface LinkHealth {
 }
 
 interface ModelHealth {
-  inferenceTime: { avg: number; min: number; max: number };
-  throughput: number;
-  avgConfidence: number;
-  detectionCounts: { benign: number; malicious: number };
-  onnxStatus: 'active' | 'inactive' | 'error';
+  models: Array<{
+    name: string;
+    type: 'ML' | 'DL';
+    status: 'online' | 'offline';
+  }>;
 }
 
 export const SystemHealthPage: React.FC = () => {
@@ -115,11 +115,13 @@ export const SystemHealthPage: React.FC = () => {
 
   // Hardcoded data - Model Health
   const modelHealth: ModelHealth = {
-    inferenceTime: { avg: 12.5, min: 8.2, max: 18.7 }, // ms
-    throughput: 85.3, // predictions/sec
-    avgConfidence: 0.92,
-    detectionCounts: { benign: 12543, malicious: 287 },
-    onnxStatus: 'active',
+    models: [
+      { name: 'XGBoost Classifier', type: 'ML', status: 'online' },
+      { name: 'Random Forest', type: 'ML', status: 'online' },
+      { name: 'Decision Tree', type: 'ML', status: 'online' },
+      { name: 'SVM (Support Vector Machine)', type: 'ML', status: 'online' },
+      { name: 'Deep Neural Network (DNN)', type: 'DL', status: 'online' },
+    ],
   };
 
   const getStatusColor = (value: number, thresholds: { warning: number; critical: number }) => {
@@ -464,87 +466,38 @@ export const SystemHealthPage: React.FC = () => {
       {activeTab === 'model' && (
         <div className="space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">ML Model Performance</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">ML/DL Models Status</h2>
             
-            <div className="grid grid-cols-3 gap-6">
-              {/* Inference Time - Avg */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Avg Inference Time</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{modelHealth.inferenceTime.avg.toFixed(1)}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">ms</p>
-              </div>
-
-              {/* Inference Time - Min */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Min Inference Time</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{modelHealth.inferenceTime.min.toFixed(1)}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">ms</p>
-              </div>
-
-              {/* Inference Time - Max */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Max Inference Time</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{modelHealth.inferenceTime.max.toFixed(1)}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">ms</p>
-              </div>
-
-              {/* Throughput */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Throughput</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{modelHealth.throughput.toFixed(1)}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">predictions/sec</p>
-              </div>
-
-              {/* Average Confidence */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Avg Confidence Score</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {(modelHealth.avgConfidence * 100).toFixed(1)}%
-                </p>
-              </div>
-
-              {/* ONNX Status */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">ONNX Runtime</p>
-                <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full ${
-                    modelHealth.onnxStatus === 'active' ? 'bg-green-500' :
-                    modelHealth.onnxStatus === 'inactive' ? 'bg-gray-500' : 'bg-red-500'
-                  }`}></div>
-                  <span className={`text-lg font-bold capitalize ${
-                    modelHealth.onnxStatus === 'active' ? 'text-green-600 dark:text-green-400' :
-                    modelHealth.onnxStatus === 'inactive' ? 'text-gray-600 dark:text-gray-400' :
-                    'text-red-600 dark:text-red-400'
-                  }`}>
-                    {modelHealth.onnxStatus}
-                  </span>
+            <div className="space-y-4">
+              {modelHealth.models.map((model, idx) => (
+                <div 
+                  key={idx}
+                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-3 h-3 rounded-full ${
+                      model.status === 'online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+                    }`}></div>
+                    <div>
+                      <p className="text-base font-semibold text-gray-900 dark:text-white">
+                        {model.name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {model.type === 'ML' ? 'Machine Learning' : 'Deep Learning'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                      model.status === 'online' 
+                        ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' 
+                        : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                    }`}>
+                      {model.status === 'online' ? 'Online' : 'Offline'}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Detection Counts */}
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Detection Statistics</h3>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg">
-                  <p className="text-xs text-green-700 dark:text-green-400 mb-2">Benign Traffic</p>
-                  <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                    {modelHealth.detectionCounts.benign.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                    {((modelHealth.detectionCounts.benign / (modelHealth.detectionCounts.benign + modelHealth.detectionCounts.malicious)) * 100).toFixed(1)}%
-                  </p>
-                </div>
-                <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg">
-                  <p className="text-xs text-red-700 dark:text-red-400 mb-2">Malicious Traffic</p>
-                  <p className="text-3xl font-bold text-red-600 dark:text-red-400">
-                    {modelHealth.detectionCounts.malicious.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                    {((modelHealth.detectionCounts.malicious / (modelHealth.detectionCounts.benign + modelHealth.detectionCounts.malicious)) * 100).toFixed(1)}%
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

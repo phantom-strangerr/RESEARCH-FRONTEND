@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 interface Port {
@@ -23,7 +23,6 @@ interface Port {
   associatedAlert?: {
     alertId: string;
     attackType: 'DOS' | 'Botnet' | 'Replay' | 'MitM';
-    confidence: number;
   };
 }
 
@@ -33,9 +32,13 @@ export const PortsPage: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authCode, setAuthCode] = useState('');
   const [portToLift, setPortToLift] = useState<Port | null>(null);
+  const [portToIsolate, setPortToIsolate] = useState<Port | null>(null);
+  const [showIsolateModal, setShowIsolateModal] = useState(false);
+  const [isolateReason, setIsolateReason] = useState('');
+  const [highlightedPorts, setHighlightedPorts] = useState<Set<string>>(new Set());
 
-  // Hardcoded ports data
-  const allPorts: Port[] = [
+  // Hardcoded ports data - now stateful
+  const [ports, setPorts] = useState<Port[]>([
     {
       id: 'PORT-001',
       portNumber: 1,
@@ -94,7 +97,6 @@ export const PortsPage: React.FC = () => {
       associatedAlert: {
         alertId: 'ALT-001',
         attackType: 'DOS',
-        confidence: 0.95,
       },
     },
     {
@@ -119,7 +121,6 @@ export const PortsPage: React.FC = () => {
       associatedAlert: {
         alertId: 'ALT-004',
         attackType: 'Replay',
-        confidence: 0.86,
       },
     },
     {
@@ -144,7 +145,6 @@ export const PortsPage: React.FC = () => {
       associatedAlert: {
         alertId: 'ALT-002',
         attackType: 'Botnet',
-        confidence: 0.88,
       },
     },
     {
@@ -205,7 +205,6 @@ export const PortsPage: React.FC = () => {
       associatedAlert: {
         alertId: 'ALT-003',
         attackType: 'MitM',
-        confidence: 0.91,
       },
     },
     {
@@ -283,10 +282,51 @@ export const PortsPage: React.FC = () => {
         drops: 0,
       },
     },
-  ];
+  ]);
+
+  // Isolate port function
+  const handleIsolatePort = (port: Port) => {
+    setPortToIsolate(port);
+    setShowIsolateModal(true);
+    setIsolateReason('');
+  };
+
+  const handleIsolateSubmit = () => {
+    if (!portToIsolate || !isolateReason.trim()) {
+      alert('Please provide a reason for isolation');
+      return;
+    }
+
+    setPorts(ports.map(p =>
+      p.id === portToIsolate.id
+        ? {
+            ...p,
+            status: 'isolated' as const,
+            isolationReason: isolateReason,
+            isolatedAt: new Date().toISOString(),
+            isolatedBy: 'manual' as const,
+          }
+        : p
+    ));
+
+    // Add highlight effect for 15 seconds
+    setHighlightedPorts(prev => new Set(prev).add(portToIsolate.id));
+    setTimeout(() => {
+      setHighlightedPorts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(portToIsolate.id);
+        return newSet;
+      });
+    }, 15000); // 15 seconds
+
+    setShowIsolateModal(false);
+    setPortToIsolate(null);
+    setIsolateReason('');
+    console.log(`Port ${portToIsolate.portNumber} isolated manually: ${isolateReason}`);
+  };
 
   // Filter ports
-  const filteredPorts = allPorts.filter(port => {
+  const filteredPorts = ports.filter(port => {
     if (filterStatus === 'all') return true;
     return port.status === filterStatus;
   });
@@ -338,8 +378,23 @@ export const PortsPage: React.FC = () => {
   const handleAuthSubmit = () => {
     // Simulated authorization check
     if (authCode === '1234') {
-      console.log('Lifting isolation for port:', portToLift?.portNumber);
-      alert(`Successfully lifted isolation on Port ${portToLift?.portNumber}`);
+      if (!portToLift) return;
+      
+      // Update the port status to active and remove isolation info
+      setPorts(ports.map(p =>
+        p.id === portToLift.id
+          ? {
+              ...p,
+              status: 'active' as const,
+              isolationReason: undefined,
+              isolatedAt: undefined,
+              isolatedBy: 'edge_ml' as const,
+            }
+          : p
+      ));
+      
+      console.log('Lifting isolation for port:', portToLift.portNumber);
+      alert(`Successfully lifted isolation on Port ${portToLift.portNumber}`);
       setShowAuthModal(false);
       setPortToLift(null);
       setAuthCode('');
@@ -350,10 +405,10 @@ export const PortsPage: React.FC = () => {
 
   // Statistics
   const stats = {
-    total: allPorts.length,
-    active: allPorts.filter(p => p.status === 'active').length,
-    isolated: allPorts.filter(p => p.status === 'isolated').length,
-    warning: allPorts.filter(p => p.status === 'warning').length,
+    total: ports.length,
+    active: ports.filter(p => p.status === 'active').length,
+    isolated: ports.filter(p => p.status === 'isolated').length,
+    warning: ports.filter(p => p.status === 'warning').length,
   };
 
   return (
@@ -407,7 +462,7 @@ export const PortsPage: React.FC = () => {
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
-            All ({allPorts.length})
+            All ({ports.length})
           </button>
           <button
             onClick={() => setFilterStatus('active')}
@@ -449,6 +504,10 @@ export const PortsPage: React.FC = () => {
             key={port.id}
             className={`bg-white dark:bg-gray-800 rounded-lg border-2 p-4 transition-all hover:shadow-lg ${
               selectedPort?.id === port.id ? 'border-blue-500' : `border-l-4 ${getStatusColor(port.status).split(' ').find(c => c.includes('border'))}`
+            } ${
+              highlightedPorts.has(port.id) 
+                ? 'animate-pulse ring-4 ring-red-500 ring-opacity-50 shadow-2xl shadow-red-500/50' 
+                : ''
             }`}
             onClick={() => setSelectedPort(port)}
           >
@@ -502,12 +561,9 @@ export const PortsPage: React.FC = () => {
             {/* Associated Alert */}
             {port.associatedAlert && (
               <div className="mb-4 p-2 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded">
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex items-center text-xs">
                   <span className="font-medium text-orange-700 dark:text-orange-400">
                     Alert: {port.associatedAlert.attackType}
-                  </span>
-                  <span className="text-orange-600 dark:text-orange-400">
-                    {(port.associatedAlert.confidence * 100).toFixed(0)}% confidence
                   </span>
                 </div>
               </div>
@@ -533,8 +589,8 @@ export const PortsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Action Button */}
-            {port.status === 'isolated' && (
+            {/* Action Buttons */}
+            {port.status === 'isolated' ? (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -547,7 +603,20 @@ export const PortsPage: React.FC = () => {
                 </svg>
                 <span>Lift Isolation (Auth Required)</span>
               </button>
-            )}
+            ) : (port.status === 'active' || port.status === 'warning') ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleIsolatePort(port);
+                }}
+                className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                <span>Isolate Port</span>
+              </button>
+            ) : null}
           </div>
         ))}
       </div>
@@ -608,6 +677,69 @@ export const PortsPage: React.FC = () => {
                 className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors"
               >
                 Authorize & Lift
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Isolate Port Modal */}
+      {showIsolateModal && portToIsolate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Isolate Port</h3>
+              <button
+                onClick={() => {
+                  setShowIsolateModal(false);
+                  setPortToIsolate(null);
+                  setIsolateReason('');
+                }}
+                className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                You are about to isolate <span className="font-bold">Port {portToIsolate.portNumber}</span>
+              </p>
+              <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded p-3 mb-4">
+                <p className="text-xs text-blue-800 dark:text-blue-400">
+                  <strong>Device:</strong> {portToIsolate.deviceName || 'Unknown'} ({portToIsolate.deviceIP})
+                </p>
+              </div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Reason for Isolation: *
+              </label>
+              <textarea
+                value={isolateReason}
+                onChange={(e) => setIsolateReason(e.target.value)}
+                placeholder="e.g., Suspicious traffic detected, Manual security check, etc."
+                rows={3}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 resize-none"
+              />
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowIsolateModal(false);
+                  setPortToIsolate(null);
+                  setIsolateReason('');
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleIsolateSubmit}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Isolate Port
               </button>
             </div>
           </div>
