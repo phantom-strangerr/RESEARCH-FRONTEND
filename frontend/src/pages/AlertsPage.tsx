@@ -224,9 +224,6 @@ export const AlertsPage: React.FC = () => {
     total: filteredAlerts.length,
     critical: filteredAlerts.filter(a => a.severity === 'critical').length,
     active: filteredAlerts.filter(a => a.status === 'active').length,
-    avgConfidence: filteredAlerts.length > 0 
-      ? (filteredAlerts.reduce((sum, a) => sum + a.confidence, 0) / filteredAlerts.length * 100).toFixed(1)
-      : '0',
   };
 
   return (
@@ -244,12 +241,12 @@ export const AlertsPage: React.FC = () => {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Alert Management</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Security alerts with ML confidence scores, model explainability, and mitigation controls
+          Security alerts and mitigation controls
         </p>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">Total Alerts</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.total}</p>
@@ -261,10 +258,6 @@ export const AlertsPage: React.FC = () => {
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
           <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 mt-1">{stats.active}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Avg Confidence</p>
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">{stats.avgConfidence}%</p>
         </div>
       </div>
 
@@ -365,10 +358,6 @@ export const AlertsPage: React.FC = () => {
               <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
                 <div className="flex items-center space-x-4 text-sm">
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Confidence: </span>
-                    <span className="font-bold text-blue-600 dark:text-blue-400">{(alert.confidence * 100).toFixed(0)}%</span>
-                  </div>
-                  <div>
                     <span className="text-gray-500 dark:text-gray-400">Edge: </span>
                     <span className="font-medium capitalize text-gray-900 dark:text-white">{alert.edgeDecision}</span>
                   </div>
@@ -406,33 +395,6 @@ export const AlertsPage: React.FC = () => {
                 <div>
                   <p className="text-gray-500 dark:text-gray-400">Bytes</p>
                   <p className="font-medium text-gray-900 dark:text-white">{(selectedAlert.byteCount! / 1024 / 1024).toFixed(2)} MB</p>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ML Confidence</h4>
-                <div className="flex items-center space-x-2">
-                  <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${selectedAlert.confidence * 100}%` }}></div>
-                  </div>
-                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{(selectedAlert.confidence * 100).toFixed(0)}%</span>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Feature Importance</h4>
-                <div className="space-y-2">
-                  {selectedAlert.featureImportance.map((f, i) => (
-                    <div key={i}>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-600 dark:text-gray-400">{f.feature}</span>
-                        <span className="font-medium">{(f.importance * 100).toFixed(0)}%</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full">
-                        <div className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full" style={{ width: `${f.importance * 100}%` }}></div>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
 

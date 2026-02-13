@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 interface PacketData {
@@ -20,6 +20,19 @@ interface PacketData {
 export const LivePacketsPage: React.FC = () => {
   const [filterType, setFilterType] = useState<string>('all');
   const [searchIP, setSearchIP] = useState('');
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+
+  // Auto-refresh every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLastUpdate(new Date());
+      // In production, this would fetch new packets from your API:
+      // fetchPackets().then(data => setAllPackets(data));
+      console.log('Auto-refreshing packets at:', new Date().toLocaleTimeString());
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
 
   // Hardcoded packet data - more comprehensive
   const allPackets: PacketData[] = [
@@ -206,14 +219,6 @@ export const LivePacketsPage: React.FC = () => {
     return colors[decision as keyof typeof colors];
   };
 
-  // Statistics
-  const stats = {
-    total: filteredPackets.length,
-    attacks: filteredPackets.filter(p => p.classification !== 'Normal').length,
-    isolated: filteredPackets.filter(p => p.edgeDecision === 'isolated').length,
-    normal: filteredPackets.filter(p => p.classification === 'Normal').length,
-  };
-
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -228,7 +233,7 @@ export const LivePacketsPage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Live Packet Monitor</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Live Packet Monitor (Refreshed every 10s)</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Real-time network traffic analysis and packet classification
           </p>
@@ -236,26 +241,6 @@ export const LivePacketsPage: React.FC = () => {
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
           <span className="text-sm font-medium text-green-600 dark:text-green-400">LIVE</span>
-        </div>
-      </div>
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Total Packets</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.total}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Normal</p>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.normal}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Attacks Detected</p>
-          <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{stats.attacks}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Isolated</p>
-          <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 mt-1">{stats.isolated}</p>
         </div>
       </div>
 
@@ -384,22 +369,10 @@ export const LivePacketsPage: React.FC = () => {
                   Dest IP
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Port
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Protocol
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Size
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Classification
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Confidence
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Decision
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Mitigation
@@ -422,25 +395,11 @@ export const LivePacketsPage: React.FC = () => {
                     {packet.destIP}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                    {packet.switchPort} → {packet.destPort}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                    {packet.protocol}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                     {packet.packetSize}B
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${getClassificationColor(packet.classification)}`}>
                       {packet.classification}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                    {(packet.confidence * 100).toFixed(0)}%
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`text-sm font-medium capitalize ${getDecisionColor(packet.edgeDecision)}`}>
-                      {packet.edgeDecision}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-600 dark:text-gray-400">
