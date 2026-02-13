@@ -1,16 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { authAPI } from '../services/api';
 
-export type UserRole = 'super_admin' | 'security_admin' | 'network_operator' | 'security_analyst';
-
-export interface User {
-  id: string;
+interface User {
+  id: number;
   username: string;
   email: string;
-  fullName: string;
-  role: UserRole;
-  department?: string;
-  createdAt: string;
-  lastLogin?: string;
+  full_name: string | null;
+  role: string;
+  is_active: boolean;
 }
 
 interface AuthContextType {
@@ -19,162 +17,44 @@ interface AuthContextType {
   isLoading: boolean;
   login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  hasPermission: (requiredRole: UserRole[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Hardcoded users for demo (in production, this comes from backend)
-const DEMO_USERS: { [key: string]: { password: string; user: User } } = {
-  admin: {
-    password: 'admin123',
-    user: {
-      id: 'usr-001',
-      username: 'admin',
-      email: 'admin@iotsoc.local',
-      fullName: 'System Administrator',
-      role: 'super_admin',
-      department: 'IT Security',
-      createdAt: '2024-01-01T00:00:00Z',
-      lastLogin: undefined,
-    },
-  },
-  secadmin: {
-    password: 'sec123',
-    user: {
-      id: 'usr-002',
-      username: 'secadmin',
-      email: 'security@iotsoc.local',
-      fullName: 'Security Administrator',
-      role: 'security_admin',
-      department: 'Security Operations',
-      createdAt: '2024-01-15T00:00:00Z',
-      lastLogin: undefined,
-    },
-  },
-  operator: {
-    password: 'op123',
-    user: {
-      id: 'usr-003',
-      username: 'operator',
-      email: 'netops@iotsoc.local',
-      fullName: 'Network Operator',
-      role: 'network_operator',
-      department: 'Network Operations',
-      createdAt: '2024-02-01T00:00:00Z',
-      lastLogin: undefined,
-    },
-  },
-  analyst: {
-    password: 'analyst123',
-    user: {
-      id: 'usr-004',
-      username: 'analyst',
-      email: 'analyst@iotsoc.local',
-      fullName: 'Security Analyst',
-      role: 'security_analyst',
-      department: 'Security Analysis',
-      createdAt: '2024-02-01T00:00:00Z',
-      lastLogin: undefined,
-    },
-  },
-};
-
-// Role hierarchy (higher number = more permissions)
-const ROLE_HIERARCHY: { [key in UserRole]: number } = {
-  super_admin: 4,
-  security_admin: 3,
-  network_operator: 2,
-  security_analyst: 1,
-};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for existing session on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('iot_soc_user');
-    const storedToken = localStorage.getItem('iot_soc_token');
-
-    if (storedUser && storedToken) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error('Failed to parse stored user:', error);
-        localStorage.removeItem('iot_soc_user');
-        localStorage.removeItem('iot_soc_token');
-      }
+    const token = localStorage.getItem('access_token');
+    const storedUser = localStorage.getItem('user');
+    if (token && storedUser) {
+      try { setUser(JSON.parse(storedUser)); } catch { /* clear invalid */ }
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (
-    username: string,
-    password: string
-  ): Promise<{ success: boolean; error?: string }> => {
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const userCredentials = DEMO_USERS[username.toLowerCase()];
-
-    if (!userCredentials) {
-      return { success: false, error: 'Invalid username or password' };
+  const login = async (username: string, password: string) => {
+    try {
+      const response = await authAPI.login(username, password);
+      const { access_token, user: userData } = response.data;
+      localStorage.setItem('access_token', access_token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.detail || 'Login failed.' };
     }
-
-    if (userCredentials.password !== password) {
-      return { success: false, error: 'Invalid username or password' };
-    }
-
-    // Update last login
-    const loggedInUser = {
-      ...userCredentials.user,
-      lastLogin: new Date().toISOString(),
-    };
-
-    // In production, this would be a JWT token from the backend
-    const mockToken = btoa(JSON.stringify({ userId: loggedInUser.id, exp: Date.now() + 86400000 }));
-
-    // Store in localStorage
-    localStorage.setItem('iot_soc_user', JSON.stringify(loggedInUser));
-    localStorage.setItem('iot_soc_token', mockToken);
-
-    setUser(loggedInUser);
-    return { success: true };
   };
 
   const logout = () => {
-    localStorage.removeItem('iot_soc_user');
-    localStorage.removeItem('iot_soc_token');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 
-  const hasPermission = (requiredRoles: UserRole[]): boolean => {
-    if (!user) return false;
-
-    // Super admin has all permissions
-    if (user.role === 'super_admin') return true;
-
-    // Check if user's role is in the required roles
-    if (requiredRoles.includes(user.role)) return true;
-
-    // Check role hierarchy - if user's role level >= any required role level
-    const userLevel = ROLE_HIERARCHY[user.role];
-    return requiredRoles.some((role) => userLevel >= ROLE_HIERARCHY[role]);
-  };
-
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        isLoading,
-        login,
-        logout,
-        hasPermission,
-      }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -182,8 +62,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
