@@ -1,0 +1,16 @@
+# FastAPI and server
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Database
+sqlalchemy
+psycopg2-binary
+
+# Authentication
+python-jose[cryptography]
+bcrypt==4.2.1
+python-dotenv
+
+# Validation
+pydantic
