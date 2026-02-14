@@ -164,7 +164,7 @@ export const LoginPage: React.FC = () => {
             </button>
           </form>
 
-          {/* Demo Credentials */}
+          {/* Demo Credentials
           <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Demo Credentials:</p>
             <div className="space-y-2 text-xs">
@@ -185,7 +185,7 @@ export const LoginPage: React.FC = () => {
                 <code className="text-blue-600 dark:text-blue-400">analyst / analyst123</code>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Footer */}
