@@ -36,6 +36,11 @@ export const PortsPage: React.FC = () => {
   const [showIsolateModal, setShowIsolateModal] = useState(false);
   const [isolateReason, setIsolateReason] = useState('');
   const [highlightedPorts, setHighlightedPorts] = useState<Set<string>>(new Set());
+  
+  // Manual isolation states
+  const [showManualIsolateModal, setShowManualIsolateModal] = useState(false);
+  const [manualPortNumber, setManualPortNumber] = useState('');
+  const [manualIsolateReason, setManualIsolateReason] = useState('');
 
   // Hardcoded ports data - now stateful
   const [ports, setPorts] = useState<Port[]>([
@@ -325,6 +330,62 @@ export const PortsPage: React.FC = () => {
     console.log(`Port ${portToIsolate.portNumber} isolated manually: ${isolateReason}`);
   };
 
+  // Manual isolation handler
+  const handleManualIsolateSubmit = () => {
+    const portNum = parseInt(manualPortNumber);
+    
+    if (!manualPortNumber || isNaN(portNum)) {
+      alert('Please enter a valid port number');
+      return;
+    }
+
+    if (!manualIsolateReason.trim()) {
+      alert('Please provide a reason for isolation');
+      return;
+    }
+
+    // Find the port
+    const port = ports.find(p => p.portNumber === portNum);
+
+    if (!port) {
+      alert(`Port ${portNum} not found`);
+      return;
+    }
+
+    if (port.status === 'isolated') {
+      alert(`Port ${portNum} is already isolated`);
+      return;
+    }
+
+    // Update port to isolated
+    setPorts(ports.map(p =>
+      p.portNumber === portNum
+        ? {
+            ...p,
+            status: 'isolated' as const,
+            isolationReason: manualIsolateReason,
+            isolatedAt: new Date().toISOString(),
+            isolatedBy: 'manual' as const,
+          }
+        : p
+    ));
+
+    // Add highlight effect for 15 seconds
+    setHighlightedPorts(prev => new Set(prev).add(port.id));
+    setTimeout(() => {
+      setHighlightedPorts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(port.id);
+        return newSet;
+      });
+    }, 15000);
+
+    setShowManualIsolateModal(false);
+    setManualPortNumber('');
+    setManualIsolateReason('');
+    console.log(`Port ${portNum} isolated manually: ${manualIsolateReason}`);
+  };
+
   // Filter ports
   const filteredPorts = ports.filter(port => {
     if (filterStatus === 'all') return true;
@@ -452,48 +513,52 @@ export const PortsPage: React.FC = () => {
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-        <div className="flex items-center space-x-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Status:</label>
-          <button
-            onClick={() => setFilterStatus('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filterStatus === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
-          >
-            All ({ports.length})
-          </button>
-          <button
-            onClick={() => setFilterStatus('active')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filterStatus === 'active'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
-          >
-            Active ({stats.active})
-          </button>
-          <button
-            onClick={() => setFilterStatus('isolated')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filterStatus === 'isolated'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
-          >
-            Isolated ({stats.isolated})
-          </button>
-          <button
-            onClick={() => setFilterStatus('warning')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filterStatus === 'warning'
-                ? 'bg-yellow-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
-          >
-            Warning ({stats.warning})
-          </button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Status:</label>
+            <button
+              onClick={() => setFilterStatus('all')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filterStatus === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              All ({ports.length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('active')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filterStatus === 'active'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              Active ({stats.active})
+            </button>
+            <button
+              onClick={() => setFilterStatus('isolated')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filterStatus === 'isolated'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              Isolated ({stats.isolated})
+            </button>
+            <button
+              onClick={() => setFilterStatus('warning')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filterStatus === 'warning'
+                  ? 'bg-yellow-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              Warning ({stats.warning})
+            </button>
+          </div>
+
+          {/* Manual Isolate Button - COMMENTED OUT - To enable, uncomment the button below */}
         </div>
       </div>
 
@@ -737,6 +802,82 @@ export const PortsPage: React.FC = () => {
               </button>
               <button
                 onClick={handleIsolateSubmit}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Isolate Port
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manual Isolate Port Modal */}
+      {showManualIsolateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Manual Port Isolation</h3>
+              <button
+                onClick={() => {
+                  setShowManualIsolateModal(false);
+                  setManualPortNumber('');
+                  setManualIsolateReason('');
+                }}
+                className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-6 space-y-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Enter the port number you want to isolate manually
+              </p>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Port Number: *
+                </label>
+                <input
+                  type="number"
+                  value={manualPortNumber}
+                  onChange={(e) => setManualPortNumber(e.target.value)}
+                  placeholder="e.g., 1, 2, 3..."
+                  min="1"
+                  max="48"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Reason for Isolation: *
+                </label>
+                <textarea
+                  value={manualIsolateReason}
+                  onChange={(e) => setManualIsolateReason(e.target.value)}
+                  placeholder="e.g., Security threat detected, Manual maintenance, etc."
+                  rows={3}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowManualIsolateModal(false);
+                  setManualPortNumber('');
+                  setManualIsolateReason('');
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleManualIsolateSubmit}
                 className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
               >
                 Isolate Port
