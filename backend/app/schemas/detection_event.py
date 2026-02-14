@@ -6,7 +6,6 @@ from datetime import datetime
 
 class DetectionEventsBase(BaseModel):
     attack_type: str = Field(..., max_length=100)
-    confidence_score: float = Field(..., ge=0.0, le=1.0)
     severity: str = Field(..., max_length=50)
     model_name: str = Field(..., max_length=100)
     processing_latency_ms: float

@@ -12,8 +12,6 @@ class TrafficFeatures(Base):
     event_id = Column(UUID(as_uuid=True), ForeignKey("detection_events.event_id"), nullable=False, index=True)
     src_ip = Column(String(45), nullable=False, index=True)
     dst_ip = Column(String(45), nullable=False, index=True)
-    src_port = Column(Integer, nullable=False)
-    dst_port = Column(Integer, nullable=False)
     protocol = Column(String(10), nullable=False)
     packet_count = Column(BigInteger, nullable=False)
     byte_count = Column(BigInteger, nullable=False)

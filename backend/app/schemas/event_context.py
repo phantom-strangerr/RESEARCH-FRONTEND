@@ -4,8 +4,7 @@ from uuid import UUID
 
 
 class EventContextBase(BaseModel):
-    src_mac: str = Field(..., max_length=17)
-    dst_mac: str = Field(..., max_length=17)
+    pass
 
 
 class EventContextCreate(EventContextBase):

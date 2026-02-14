@@ -12,7 +12,6 @@ class DetectionEvents(Base):
     event_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     timestamp = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False, index=True)
     attack_type = Column(String(100), nullable=False)
-    confidence_score = Column(Float, nullable=False)
     severity = Column(String(50), nullable=False)
     model_name = Column(String(100), nullable=False)
     processing_latency_ms = Column(Float, nullable=False)
