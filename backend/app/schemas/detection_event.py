@@ -9,6 +9,7 @@ class DetectionEventsBase(BaseModel):
     severity: str = Field(..., max_length=50)
     model_name: str = Field(..., max_length=100)
     processing_latency_ms: float
+    mitigation: Optional[str] = None
 
 
 class DetectionEventsCreate(DetectionEventsBase):
