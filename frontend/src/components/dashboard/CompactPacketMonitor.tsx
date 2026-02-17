@@ -4,18 +4,30 @@ import { Link } from 'react-router-dom';
 interface CompactPacketData {
   timestamp: string;
   sourceIP: string;
-  classification: 'Normal' | 'DOS' | 'Botnet' | 'Replay' | 'MitM';
-  confidence: number;
+  switchPort: number;
+  classification: 'Normal' | 'DOS' | 'Botnet' | 'Replay' | 'Spoofing';
+  isIsolated: boolean;
 }
 
 export const CompactPacketMonitor: React.FC = () => {
-  const packets: CompactPacketData[] = [
-    { timestamp: '14:23:45', sourceIP: '192.168.1.105', classification: 'DOS', confidence: 0.95 },
-    { timestamp: '14:23:45', sourceIP: '192.168.1.102', classification: 'Normal', confidence: 0.99 },
-    { timestamp: '14:23:44', sourceIP: '192.168.1.108', classification: 'Botnet', confidence: 0.88 },
-    { timestamp: '14:23:44', sourceIP: '192.168.1.110', classification: 'MitM', confidence: 0.91 },
-    { timestamp: '14:23:44', sourceIP: '192.168.1.107', classification: 'Replay', confidence: 0.86 },
-  ];
+  const [packets, setPackets] = React.useState<CompactPacketData[]>([
+    { timestamp: '14:23:45', sourceIP: '192.168.1.105', switchPort: 3, classification: 'DOS', isIsolated: true },
+    { timestamp: '14:23:45', sourceIP: '192.168.1.102', switchPort: 7, classification: 'Normal', isIsolated: false },
+    { timestamp: '14:23:44', sourceIP: '192.168.1.108', switchPort: 5, classification: 'Botnet', isIsolated: true },
+    { timestamp: '14:23:44', sourceIP: '192.168.1.110', switchPort: 8, classification: 'Spoofing', isIsolated: true },
+    { timestamp: '14:23:44', sourceIP: '192.168.1.107', switchPort: 4, classification: 'Replay', isIsolated: true },
+  ]);
+
+  const handleIsolate = (index: number) => {
+    const packet = packets[index];
+    if (window.confirm(`Isolate port ${packet.switchPort} (${packet.sourceIP})?`)) {
+      const updatedPackets = [...packets];
+      updatedPackets[index].isIsolated = true;
+      setPackets(updatedPackets);
+      // In production, this would call your API to actually isolate the port
+      console.log(`Port ${packet.switchPort} isolated`);
+    }
+  };
 
   const getClassificationColor = (classification: string) => {
     const colors = {
@@ -23,7 +35,7 @@ export const CompactPacketMonitor: React.FC = () => {
       DOS: 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400',
       Botnet: 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400',
       Replay: 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400',
-      MitM: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400',
+      Spoofing: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400',
     };
     return colors[classification as keyof typeof colors];
   };
@@ -33,7 +45,7 @@ export const CompactPacketMonitor: React.FC = () => {
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Packet Monitoring</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Packet Monitor</h3>
         </div>
         <Link to="/packets" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
           View All

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 interface Alert {
   id: string;
   timestamp: string;
-  attackType: 'DOS' | 'Botnet' | 'Replay' | 'MitM';
+  attackType: 'DOS' | 'Botnet' | 'Replay' | 'Spoofing';
   severity: 'critical' | 'high' | 'medium' | 'low';
   sourceIP: string;
   sourceMAC: string;
@@ -83,7 +83,7 @@ export const AlertsPage: React.FC = () => {
     {
       id: 'ALT-003',
       timestamp: '2025-02-07 14:21:15.789',
-      attackType: 'MitM',
+      attackType: 'Spoofing',
       severity: 'high',
       sourceIP: '192.168.1.110',
       sourceMAC: 'AB:CD:EF:12:34:56',
@@ -205,7 +205,7 @@ export const AlertsPage: React.FC = () => {
       DOS: 'text-red-600 dark:text-red-400',
       Botnet: 'text-orange-600 dark:text-orange-400',
       Replay: 'text-purple-600 dark:text-purple-400',
-      MitM: 'text-yellow-600 dark:text-yellow-400',
+      Spoofing: 'text-yellow-600 dark:text-yellow-400',
     };
     return colors[type as keyof typeof colors];
   };
@@ -290,7 +290,7 @@ export const AlertsPage: React.FC = () => {
               <option value="DOS">DOS</option>
               <option value="Botnet">Botnet</option>
               <option value="Replay">Replay</option>
-              <option value="MitM">MitM</option>
+              <option value="Spoofing">Spoofing</option>
             </select>
           </div>
 

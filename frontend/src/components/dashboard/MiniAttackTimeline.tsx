@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 interface MiniTimelineEvent {
   timestamp: string;
-  type: 'DOS' | 'Botnet' | 'Replay' | 'MitM';
+  type: 'DOS' | 'Botnet' | 'Replay' | 'Spoofing';
   sourceIP: string;
   action: 'detected' | 'blocked' | 'isolated';
 }
@@ -12,7 +12,7 @@ export const MiniAttackTimeline: React.FC = () => {
   const events: MiniTimelineEvent[] = [
     { timestamp: '14:23:45', type: 'DOS', sourceIP: '192.168.1.105', action: 'isolated' },
     { timestamp: '14:23:12', type: 'Botnet', sourceIP: '192.168.1.108', action: 'blocked' },
-    { timestamp: '14:22:48', type: 'MitM', sourceIP: '192.168.1.110', action: 'detected' },
+    { timestamp: '14:22:48', type: 'Spoofing', sourceIP: '192.168.1.110', action: 'detected' },
     { timestamp: '14:21:33', type: 'Replay', sourceIP: '192.168.1.107', action: 'blocked' },
   ];
 
@@ -21,7 +21,7 @@ export const MiniAttackTimeline: React.FC = () => {
       DOS: 'text-red-600 dark:text-red-400',
       Botnet: 'text-orange-600 dark:text-orange-400',
       Replay: 'text-purple-600 dark:text-purple-400',
-      MitM: 'text-yellow-600 dark:text-yellow-400',
+      Spoofing: 'text-yellow-600 dark:text-yellow-400',
     };
     return colors[type as keyof typeof colors];
   };
@@ -35,7 +35,7 @@ export const MiniAttackTimeline: React.FC = () => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5 h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Recent Events</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Recent Alerts</h3>
         <Link to="/alerts" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
           View All
         </Link>
