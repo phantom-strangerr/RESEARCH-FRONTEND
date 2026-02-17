@@ -22,7 +22,7 @@ interface Port {
   };
   associatedAlert?: {
     alertId: string;
-    attackType: 'DOS' | 'Botnet' | 'Replay' | 'MitM';
+    attackType: 'DOS' | 'Botnet' | 'Replay' | 'Spoofing';
   };
 }
 
@@ -209,7 +209,7 @@ export const PortsPage: React.FC = () => {
       },
       associatedAlert: {
         alertId: 'ALT-003',
-        attackType: 'MitM',
+        attackType: 'Spoofing',
       },
     },
     {
