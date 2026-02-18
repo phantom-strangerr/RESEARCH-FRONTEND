@@ -25,22 +25,22 @@ api.interceptors.response.use(
   }
 );
 
+// Auth APIs
 export const authAPI = {
-  login: (username: string, password: string) =>
-    api.post('/auth/login', { username, password }),
+  login: (username: string, password: string) => api.post('/auth/login', { username, password }),
   getMe: () => api.get('/auth/me'),
 };
 
 // Dashboard APIs
 export const dashboardAPI = {
-  getRecentPackets: (limit: number = 5) =>
-    api.get(`/dashboard/recent-packets?limit=${limit}`),
+  getRecentPackets: (limit: number = 5) => api.get(`/dashboard/recent-packets?limit=${limit}`),
+  getRecentEvents: (limit: number = 5) => api.get(`/dashboard/recent-events?limit=${limit}`),
+  getAlerts: () => api.get('/dashboard/alerts'),
 };
 
 // Live Packets APIs
 export const packetsAPI = {
-  getAllPackets: () =>
-    api.get('/traffic-features'),
+  getAllPackets: () => api.get('/traffic-features'),
 };
 
 export default api;
