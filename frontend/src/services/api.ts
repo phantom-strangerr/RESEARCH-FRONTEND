@@ -31,4 +31,16 @@ export const authAPI = {
   getMe: () => api.get('/auth/me'),
 };
 
+// Dashboard APIs
+export const dashboardAPI = {
+  getRecentPackets: (limit: number = 5) =>
+    api.get(`/dashboard/recent-packets?limit=${limit}`),
+};
+
+// Live Packets APIs
+export const packetsAPI = {
+  getAllPackets: () =>
+    api.get('/traffic-features'),
+};
+
 export default api;

@@ -21,6 +21,7 @@ from app.api.endpoints import traffic
 from app.api.endpoints import event_context
 from app.api.endpoints import device_health
 from app.api.endpoints import system_logs
+from app.api.endpoints import dashboard
 
 # Load env
 load_dotenv()
@@ -54,6 +55,7 @@ app.include_router(traffic.router, prefix="/api/v1/traffic-features", tags=["tra
 app.include_router(event_context.router, prefix="/api/v1/event-context", tags=["event-context"])
 app.include_router(device_health.router, prefix="/api/v1/device-health-logs", tags=["device-health-logs"])
 app.include_router(system_logs.router, prefix="/api/v1/system-logs", tags=["system-logs"])
+app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboard"])
 
 
 # Startup event
