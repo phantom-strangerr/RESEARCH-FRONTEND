@@ -43,4 +43,15 @@ export const packetsAPI = {
   getAllPackets: () => api.get('/traffic-features'),
 };
 
+// Ports APIs
+export const portsAPI = {
+  getAllPorts: () => api.get('/ports'),
+  getPort: (portId: string) => api.get(`/ports/${portId}`),
+  isolatePort: (portId: string, data: { reason: string; isolated_by?: string }) =>
+    api.post(`/ports/${portId}/isolate`, data),
+  liftIsolation: (portId: string) =>
+    api.post(`/ports/${portId}/lift-isolation`),
+  seedPorts: () => api.post('/ports/seed/sample'),
+};
+
 export default api;
