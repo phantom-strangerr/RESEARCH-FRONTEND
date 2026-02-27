@@ -19,13 +19,11 @@ class SwitchPortBase(BaseModel):
 
 
 class SwitchPortCreate(SwitchPortBase):
-    """Used by Raspberry Pi to push port data."""
     port_id: Optional[UUID] = None
     last_activity: Optional[datetime] = None
 
 
 class SwitchPortUpdate(BaseModel):
-    """Used by Raspberry Pi to update existing port data."""
     status: Optional[str] = None
     device_ip: Optional[str] = None
     device_mac: Optional[str] = None
@@ -40,7 +38,6 @@ class SwitchPortUpdate(BaseModel):
 
 
 class SwitchPortIsolate(BaseModel):
-    """Used by frontend to isolate a port."""
     reason: str = Field(..., max_length=500)
     isolated_by: str = Field(default="manual", max_length=20)
     alert_event_id: Optional[UUID] = None
@@ -51,6 +48,7 @@ class SwitchPortOut(SwitchPortBase):
     isolation_reason: Optional[str] = None
     isolated_at: Optional[datetime] = None
     isolated_by: Optional[str] = None
+    original_vlan: Optional[int] = None
     last_activity: Optional[datetime] = None
     alert_event_id: Optional[UUID] = None
     updated_at: Optional[datetime] = None
