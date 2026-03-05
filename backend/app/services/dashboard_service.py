@@ -1,12 +1,9 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
 from app.models.traffic_features import TrafficFeatures
 from app.models.detection_event import DetectionEvents
-from app.models.event_context import EventContext
 
 
 def get_recent_packets(db: Session, limit: int = 5):
-    """Get the most recent packets for dashboard Packet Monitoring section."""
     return (
         db.query(TrafficFeatures)
         .order_by(TrafficFeatures.timestamp.desc())
@@ -16,7 +13,6 @@ def get_recent_packets(db: Session, limit: int = 5):
 
 
 def get_recent_events(db: Session, limit: int = 5):
-    """Get recent detection events with source IP for dashboard Recent Events section."""
     results = (
         db.query(
             DetectionEvents.event_id,
@@ -26,25 +22,19 @@ def get_recent_events(db: Session, limit: int = 5):
             TrafficFeatures.src_ip,
         )
         .outerjoin(TrafficFeatures, DetectionEvents.event_id == TrafficFeatures.event_id)
+        .filter(DetectionEvents.attack_type != "Normal")
         .order_by(DetectionEvents.timestamp.desc())
         .limit(limit)
         .all()
     )
-
     return [
-        {
-            "event_id": r.event_id,
-            "timestamp": r.timestamp,
-            "attack_type": r.attack_type,
-            "mitigation": r.mitigation,
-            "src_ip": r.src_ip,
-        }
+        {"event_id": r.event_id, "timestamp": r.timestamp, "attack_type": r.attack_type, "mitigation": r.mitigation, "src_ip": r.src_ip}
         for r in results
     ]
 
 
 def get_alerts(db: Session):
-    """Get all detection events with joined traffic + context data for Alerts page."""
+    """Get all detection events with joined traffic data for Alerts page."""
     results = (
         db.query(
             DetectionEvents.event_id,
@@ -59,10 +49,8 @@ def get_alerts(db: Session):
             TrafficFeatures.protocol,
             TrafficFeatures.byte_count,
             TrafficFeatures.packet_size,
-            TrafficFeatures.classification,
         )
         .outerjoin(TrafficFeatures, DetectionEvents.event_id == TrafficFeatures.event_id)
-        .outerjoin(EventContext, DetectionEvents.event_id == EventContext.event_id)
         .order_by(DetectionEvents.timestamp.desc())
         .all()
     )
@@ -81,8 +69,8 @@ def get_alerts(db: Session):
             "protocol": r.protocol,
             "byte_count": r.byte_count,
             "packet_size": r.packet_size,
-            "src_mac": r.src_mac,
-            "dst_mac": r.dst_mac,
+            "src_mac": None,
+            "dst_mac": None,
         }
         for r in results
     ]

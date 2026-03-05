@@ -7,7 +7,8 @@ interface RecentEvent {
   timestamp: string;
   attack_type: string;
   src_ip: string | null;
-  mitigation: string;
+  ml_result: string;
+  dl_detected: boolean;
 }
 
 export const MiniAttackTimeline: React.FC = () => {
@@ -30,8 +31,6 @@ export const MiniAttackTimeline: React.FC = () => {
 
   useEffect(() => {
     fetchEvents();
-
-    // Auto-refresh every 10 seconds
     const interval = setInterval(fetchEvents, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -47,25 +46,21 @@ export const MiniAttackTimeline: React.FC = () => {
     return colors[type] ?? 'text-gray-500';
   };
 
-  const getActionColor = (action: string) => {
+  const getMLResultColor = (result: string) => {
     const colors: Record<string, string> = {
-      isolated:     'text-red-600 dark:text-red-400',
-      blocked:      'text-orange-600 dark:text-orange-400',
-      detected:     'text-blue-600 dark:text-blue-400',
-      port_disabled:'text-red-600 dark:text-red-400',
-      mac_blocked:  'text-orange-600 dark:text-orange-400',
-      none:         'text-gray-500 dark:text-gray-400',
+      DOS:      'text-red-500 dark:text-red-400',
+      Botnet:   'text-orange-500 dark:text-orange-400',
+      Replay:   'text-purple-500 dark:text-purple-400',
+      Spoofing: 'text-yellow-500 dark:text-yellow-400',
+      MitM:     'text-yellow-500 dark:text-yellow-400',
+      Benign:   'text-green-500 dark:text-green-400',
     };
-    return colors[action] ?? 'text-gray-500';
+    return colors[result] ?? 'text-gray-500';
   };
 
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString('en-US', { hour12: false });
-  };
-
-  const formatAction = (action: string) => {
-    return action.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
   };
 
   return (
@@ -105,7 +100,8 @@ export const MiniAttackTimeline: React.FC = () => {
                 <th className="text-left pb-2 font-medium">Time</th>
                 <th className="text-left pb-2 font-medium">Type</th>
                 <th className="text-left pb-2 font-medium">Source IP</th>
-                <th className="text-left pb-2 font-medium">Action</th>
+                <th className="text-left pb-2 font-medium">ML Result</th>
+                <th className="text-left pb-2 font-medium">DL</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -120,8 +116,20 @@ export const MiniAttackTimeline: React.FC = () => {
                   <td className="py-2 font-mono text-gray-900 dark:text-gray-300">
                     {event.src_ip ?? '—'}
                   </td>
-                  <td className={`py-2 font-medium ${getActionColor(event.mitigation)}`}>
-                    {formatAction(event.mitigation)}
+                  <td className={`py-2 font-medium ${getMLResultColor(event.ml_result)}`}>
+                    {event.ml_result}
+                  </td>
+                  <td className="py-2">
+                    {event.dl_detected ? (
+                      <span
+                        title="Confirmed by Cloud DL model"
+                        className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300"
+                      >
+                        DL
+                      </span>
+                    ) : (
+                      <span className="text-gray-300 dark:text-gray-600">—</span>
+                    )}
                   </td>
                 </tr>
               ))}

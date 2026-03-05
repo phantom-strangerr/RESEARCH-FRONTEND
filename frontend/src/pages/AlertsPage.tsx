@@ -17,6 +17,8 @@ interface Alert {
   packet_size: number | null;
   src_mac: string | null;
   dst_mac: string | null;
+  ml_detected: boolean;
+  dl_detected: boolean;
 }
 
 export const AlertsPage: React.FC = () => {
@@ -185,6 +187,7 @@ export const AlertsPage: React.FC = () => {
                       : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                   }`}
                 >
+                  {/* Top row — severity + attack type + mitigation */}
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center space-x-3">
                       <span className={`px-3 py-1 rounded border text-xs font-bold uppercase ${getSeverityColor(alert.severity)}`}>
@@ -199,6 +202,7 @@ export const AlertsPage: React.FC = () => {
                     </span>
                   </div>
 
+                  {/* Middle rows — event details */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-gray-500 dark:text-gray-400">Event ID</p>
@@ -218,6 +222,26 @@ export const AlertsPage: React.FC = () => {
                       <p className="text-gray-500 dark:text-gray-400">Model</p>
                       <p className="font-medium text-gray-900 dark:text-white">{alert.model_name}</p>
                     </div>
+                  </div>
+
+                  {/* Bottom-left — ML / DL detection labels */}
+                  <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    {alert.ml_detected && (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                        </svg>
+                        <span>ML Detected</span>
+                      </span>
+                    )}
+                    {alert.dl_detected && (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span>DL Detected</span>
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -279,6 +303,27 @@ export const AlertsPage: React.FC = () => {
                     <div>
                       <p className="text-gray-500 dark:text-gray-400">Mitigation</p>
                       <p className="font-medium text-gray-900 dark:text-white">{formatMitigation(selectedAlert.mitigation)}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400 mb-2">Detection Source</p>
+                      <div className="flex items-center space-x-2">
+                        {selectedAlert.ml_detected && (
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                            </svg>
+                            <span>ML Detected</span>
+                          </span>
+                        )}
+                        {selectedAlert.dl_detected && (
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span>DL Detected</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
