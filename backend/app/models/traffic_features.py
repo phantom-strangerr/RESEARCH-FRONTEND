@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, BigInteger, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, BigInteger, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
@@ -20,6 +20,8 @@ class TrafficFeatures(Base):
     ttl = Column(Float, nullable=False)
     timestamp = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False, index=True)
     classification = Column(String(50), nullable=False)
+    ML = Column(Boolean, nullable=True)
+    DL = Column(Boolean, nullable=True)
 
     # Relationship
     detection_event = relationship("DetectionEvents", back_populates="traffic_features")

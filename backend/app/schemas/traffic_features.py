@@ -13,6 +13,8 @@ class TrafficFeaturesBase(BaseModel):
     ttl: float
     timestamp: Optional[datetime] = None
     classification: str = Field(..., max_length=50)
+    ML: bool | None = None
+    DL: bool | None = None
 
 
 class TrafficFeaturesCreate(TrafficFeaturesBase):
