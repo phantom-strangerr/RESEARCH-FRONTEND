@@ -38,6 +38,11 @@ export const PortsPage: React.FC = () => {
   const [manualPortNumber, setManualPortNumber] = useState('');
   const [manualIsolateReason, setManualIsolateReason] = useState('');
   const [highlightedPorts, setHighlightedPorts] = useState<Set<string>>(new Set());
+  
+  // Manual isolation states
+  const [showManualIsolateModal, setShowManualIsolateModal] = useState(false);
+  const [manualPortNumber, setManualPortNumber] = useState('');
+  const [manualIsolateReason, setManualIsolateReason] = useState('');
 
   const fetchPorts = async () => {
     try {
@@ -458,6 +463,82 @@ export const PortsPage: React.FC = () => {
             </div>
           )}
         </>
+      )}
+
+      {/* Manual Isolate Port Modal */}
+      {showManualIsolateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Manual Port Isolation</h3>
+              <button
+                onClick={() => {
+                  setShowManualIsolateModal(false);
+                  setManualPortNumber('');
+                  setManualIsolateReason('');
+                }}
+                className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-6 space-y-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Enter the port number you want to isolate manually
+              </p>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Port Number: *
+                </label>
+                <input
+                  type="number"
+                  value={manualPortNumber}
+                  onChange={(e) => setManualPortNumber(e.target.value)}
+                  placeholder="e.g., 1, 2, 3..."
+                  min="1"
+                  max="48"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Reason for Isolation: *
+                </label>
+                <textarea
+                  value={manualIsolateReason}
+                  onChange={(e) => setManualIsolateReason(e.target.value)}
+                  placeholder="e.g., Security threat detected, Manual maintenance, etc."
+                  rows={3}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowManualIsolateModal(false);
+                  setManualPortNumber('');
+                  setManualIsolateReason('');
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleManualIsolateSubmit}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Isolate Port
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

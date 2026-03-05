@@ -41,6 +41,7 @@ export const LivePacketsPage: React.FC = () => {
 
   // Search and filter logic
   const filteredPackets = allPackets.filter(packet => {
+    // Type filter
     const matchesType = filterType === 'all' || packet.classification === filterType;
     const searchTerm = searchIP.trim().toLowerCase();
     const matchesSearch =

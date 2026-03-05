@@ -56,7 +56,7 @@ export const CompactPacketMonitor: React.FC = () => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Packet Monitoring</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Packet Monitor</h3>
         </div>
         <Link
           to="/live-packets"
