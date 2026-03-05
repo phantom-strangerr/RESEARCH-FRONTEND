@@ -1,21 +1,20 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from uuid import UUID
+from datetime import datetime
 
 
 class TrafficFeaturesBase(BaseModel):
     src_ip: str = Field(..., max_length=45)
     dst_ip: str = Field(..., max_length=45)
-    src_port: int = Field(..., ge=0, le=65535)
-    dst_port: int = Field(..., ge=0, le=65535)
     protocol: str = Field(..., max_length=10)
-    packet_count: int
     byte_count: int
-    packet_rate: float
-    flow_duration_ms: float
-    avg_inter_arrival_time_ms: float
-    avg_packet_size: float
-    ttl_avg: float
+    packet_size: float
+    ttl: float
+    timestamp: Optional[datetime] = None
+    classification: str = Field(..., max_length=50)
+    ml: bool | None = None
+    dl: bool | None = None
 
 
 class TrafficFeaturesCreate(TrafficFeaturesBase):

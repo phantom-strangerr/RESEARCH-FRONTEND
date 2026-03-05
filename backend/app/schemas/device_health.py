@@ -6,6 +6,7 @@ from datetime import datetime
 
 class DeviceHealthLogsBase(BaseModel):
     cpu_usage_percent: float = Field(..., ge=0.0, le=100.0)
+    cpu_temperature: float = Field(..., ge=0.0)
     memory_usage_percent: float = Field(..., ge=0.0, le=100.0)
     disk_usage_percent: float = Field(..., ge=0.0, le=100.0)
     network_rx_bytes: int

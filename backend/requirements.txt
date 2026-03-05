@@ -14,3 +14,6 @@ python-dotenv
 
 # Validation
 pydantic
+
+netmiko
+requests
