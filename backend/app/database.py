@@ -36,12 +36,13 @@ def init_db():
     existing_tables = inspector.get_table_names()
 
     required_tables = [
-        "users",
-        "detection_events",
-        "traffic_features",
-        "event_context",
-        "device_health_logs",
-        "system_logs",
+    "users", 
+    "detection_events", 
+    "traffic_features",
+    "event_context", 
+    "device_health_logs", 
+    "system_logs",
+    "switch_ports",
     ]
 
     created_tables = [table for table in required_tables if table in existing_tables]

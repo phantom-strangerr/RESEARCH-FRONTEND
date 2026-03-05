@@ -1,62 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { packetsAPI } from '../services/api';
 
 interface PacketData {
-  id: string;
+  feature_id: string;
   timestamp: string;
-  sourceIP: string;
-  destIP: string;
-  packetSize: number;
-  classification: 'Normal' | 'DOS' | 'Botnet' | 'Replay' | 'Spoofing';
+  src_ip: string;
+  dst_ip: string;
+  packet_size: number;
+  classification: string;
 }
 
 export const LivePacketsPage: React.FC = () => {
+  const [allPackets, setAllPackets] = useState<PacketData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchIP, setSearchIP] = useState('');
 
-  // Auto-refresh every 10 seconds
+  const fetchPackets = async () => {
+    try {
+      const response = await packetsAPI.getAllPackets();
+      setAllPackets(response.data);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to fetch packets:', err);
+      setError('Failed to load packets');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      console.log('Auto-refreshing packets at:', new Date().toLocaleTimeString());
-    }, 10000);
+    fetchPackets();
+
+    // Auto-refresh every 10 seconds
+    const interval = setInterval(fetchPackets, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  const allPackets: PacketData[] = [
-    { id: '1',  timestamp: '2025-02-07 14:23:45', sourceIP: '192.168.1.105', destIP: '192.168.1.1',   packetSize: 1500, classification: 'DOS'    },
-    { id: '2',  timestamp: '2025-02-07 14:23:45', sourceIP: '192.168.1.102', destIP: '192.168.1.50',  packetSize: 856,  classification: 'Normal' },
-    { id: '3',  timestamp: '2025-02-07 14:23:44', sourceIP: '192.168.1.108', destIP: '192.168.1.1',   packetSize: 1200, classification: 'Botnet' },
-    { id: '4',  timestamp: '2025-02-07 14:23:44', sourceIP: '192.168.1.101', destIP: '192.168.1.200', packetSize: 512,  classification: 'Normal' },
-    { id: '5',  timestamp: '2025-02-07 14:23:44', sourceIP: '192.168.1.110', destIP: '192.168.1.101', packetSize: 64,   classification: 'Spoofing'   },
-    { id: '6',  timestamp: '2025-02-07 14:23:43', sourceIP: '192.168.1.104', destIP: '192.168.1.1',   packetSize: 1024, classification: 'Normal' },
-    { id: '7',  timestamp: '2025-02-07 14:23:43', sourceIP: '192.168.1.107', destIP: '192.168.1.50',  packetSize: 128,  classification: 'Replay' },
-    { id: '8',  timestamp: '2025-02-07 14:23:43', sourceIP: '192.168.1.103', destIP: '192.168.1.1',   packetSize: 768,  classification: 'Normal' },
-    { id: '9',  timestamp: '2025-02-07 14:23:44', sourceIP: '192.168.1.112', destIP: '192.168.1.5',   packetSize: 256,  classification: 'DOS'    },
-    { id: '10', timestamp: '2025-02-07 14:23:44', sourceIP: '192.168.1.115', destIP: '192.168.1.60',  packetSize: 1450, classification: 'Botnet' },
-  ];
-
   // Search and filter logic
   const filteredPackets = allPackets.filter(packet => {
-    // Type filter
     const matchesType = filterType === 'all' || packet.classification === filterType;
-
-    // Search: trim, lowercase, match against sourceIP and destIP
     const searchTerm = searchIP.trim().toLowerCase();
     const matchesSearch =
       searchTerm === '' ||
-      packet.sourceIP.toLowerCase().includes(searchTerm) ||
-      packet.destIP.toLowerCase().includes(searchTerm);
-
+      packet.src_ip.toLowerCase().includes(searchTerm) ||
+      packet.dst_ip.toLowerCase().includes(searchTerm);
     return matchesType && matchesSearch;
   });
 
   const getClassificationColor = (classification: string) => {
     const colors: Record<string, string> = {
-      Normal: 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400',
-      DOS:    'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400',
-      Botnet: 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400',
-      Replay: 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400',
-      Spoofing:   'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400',
+      Normal:   'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400',
+      DOS:      'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400',
+      Botnet:   'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400',
+      Replay:   'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400',
+      Spoofing: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400',
     };
     return colors[classification] ?? '';
   };
@@ -106,12 +106,12 @@ export const LivePacketsPage: React.FC = () => {
             <div className="flex space-x-2">
               {(['all', 'Normal', 'DOS', 'Botnet', 'Replay', 'Spoofing'] as const).map((type) => {
                 const activeColors: Record<string, string> = {
-                  all:    'bg-blue-600 text-white',
-                  Normal: 'bg-green-600 text-white',
-                  DOS:    'bg-red-600 text-white',
-                  Botnet: 'bg-orange-600 text-white',
-                  Replay: 'bg-purple-600 text-white',
-                  Spoofing:   'bg-yellow-500 text-white',
+                  all:      'bg-blue-600 text-white',
+                  Normal:   'bg-green-600 text-white',
+                  DOS:      'bg-red-600 text-white',
+                  Botnet:   'bg-orange-600 text-white',
+                  Replay:   'bg-purple-600 text-white',
+                  Spoofing: 'bg-yellow-500 text-white',
                 };
                 return (
                   <button
@@ -160,62 +160,78 @@ export const LivePacketsPage: React.FC = () => {
 
       {/* Packets Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-900">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Timestamp
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Source IP
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Dest IP
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Size
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Classification
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredPackets.map((packet) => (
-                <tr key={packet.id} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-500 dark:text-gray-400">
-                    {packet.timestamp}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-gray-300">
-                    {packet.sourceIP}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-gray-300">
-                    {packet.destIP}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                    {packet.packetSize}B
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getClassificationColor(packet.classification)}`}>
-                      {packet.classification}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredPackets.length === 0 && (
+        {isLoading ? (
           <div className="p-12 text-center">
-            <p className="text-gray-500 dark:text-gray-400">No packets match your search</p>
+            <p className="text-gray-500 dark:text-gray-400">Loading packets...</p>
+          </div>
+        ) : error ? (
+          <div className="p-12 text-center">
+            <p className="text-red-500 dark:text-red-400">{error}</p>
             <button
-              onClick={() => { setFilterType('all'); setSearchIP(''); }}
+              onClick={fetchPackets}
               className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline"
             >
-              Clear filters
+              Retry
             </button>
+          </div>
+        ) : filteredPackets.length === 0 ? (
+          <div className="p-12 text-center">
+            {allPackets.length === 0 ? (
+              <>
+                <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <p className="text-gray-500 dark:text-gray-400">No packets captured yet</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Packets will appear here once network traffic is detected</p>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-500 dark:text-gray-400">No packets match your search</p>
+                <button
+                  onClick={() => { setFilterType('all'); setSearchIP(''); }}
+                  className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Clear filters
+                </button>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-900">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Timestamp</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Source IP</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dest IP</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Size</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Classification</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {filteredPackets.map((packet) => (
+                  <tr key={packet.feature_id} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-500 dark:text-gray-400">
+                      {new Date(packet.timestamp).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-gray-300">
+                      {packet.src_ip}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-gray-300">
+                      {packet.dst_ip}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                      {packet.packet_size}B
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getClassificationColor(packet.classification)}`}>
+                        {packet.classification}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
