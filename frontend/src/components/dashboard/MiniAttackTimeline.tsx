@@ -31,7 +31,7 @@ export const MiniAttackTimeline: React.FC = () => {
 
   useEffect(() => {
     fetchEvents();
-    const interval = setInterval(fetchEvents, 10000);
+    const interval = setInterval(fetchEvents, 5000);
     return () => clearInterval(interval);
   }, []);
 

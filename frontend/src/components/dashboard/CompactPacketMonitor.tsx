@@ -29,8 +29,8 @@ export const CompactPacketMonitor: React.FC = () => {
   useEffect(() => {
     fetchPackets();
 
-    // Auto-refresh every 10 seconds
-    const interval = setInterval(fetchPackets, 10000);
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(fetchPackets, 5000);
     return () => clearInterval(interval);
   }, []);
 
