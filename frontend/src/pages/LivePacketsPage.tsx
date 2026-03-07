@@ -34,8 +34,8 @@ export const LivePacketsPage: React.FC = () => {
   useEffect(() => {
     fetchPackets();
 
-    // Auto-refresh every 10 seconds
-    const interval = setInterval(fetchPackets, 10000);
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(fetchPackets, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -76,7 +76,7 @@ export const LivePacketsPage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Packet Monitor (Refreshed every 10s)</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Packet Monitor</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Real-time network traffic analysis and packet classification
           </p>
