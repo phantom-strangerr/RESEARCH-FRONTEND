@@ -72,23 +72,11 @@ export const Sidebar: React.FC = () => {
       <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
         {!collapsed && (
           <div className="flex items-center space-x-2">
-            <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="sn-grad" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
-                  <stop offset="0%" stopColor="#7C3AED"/>
-                  <stop offset="50%" stopColor="#3B82F6"/>
-                  <stop offset="100%" stopColor="#06E6FA"/>
-                </linearGradient>
-              </defs>
-              {/* Top-left large */}
-              <rect x="10" y="6" width="42" height="36" rx="7" transform="rotate(-12 31 24)" fill="url(#sn-grad)"/>
-              {/* Top-right small */}
-              <rect x="56" y="24" width="21" height="18" rx="5" transform="rotate(-12 66 33)" fill="url(#sn-grad)"/>
-              {/* Bottom-left small */}
-              <rect x="23" y="56" width="21" height="18" rx="5" transform="rotate(-12 33 65)" fill="url(#sn-grad)"/>
-              {/* Bottom-right large */}
-              <rect x="44" y="54" width="42" height="36" rx="7" transform="rotate(-12 65 72)" fill="url(#sn-grad)"/>
-            </svg>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
             <span className="text-lg font-bold text-gray-900 dark:text-white">SafeNode</span>
           </div>
         )}
