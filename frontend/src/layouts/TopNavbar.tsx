@@ -28,7 +28,7 @@ export const TopNavbar: React.FC = () => {
       {/* Left side - could add breadcrumbs or page title here */}
       <div className="flex items-center space-x-4">
         <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Security Operations Center
+          SafeNode
         </h1>
       </div>
 
