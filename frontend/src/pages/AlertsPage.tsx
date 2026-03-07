@@ -74,7 +74,6 @@ export const AlertsPage: React.FC = () => {
       Botnet:   'text-orange-600 dark:text-orange-400',
       Replay:   'text-purple-600 dark:text-purple-400',
       Spoofing: 'text-yellow-600 dark:text-yellow-400',
-      MitM:     'text-yellow-600 dark:text-yellow-400',
     };
     return colors[type] ?? 'text-gray-600';
   };
