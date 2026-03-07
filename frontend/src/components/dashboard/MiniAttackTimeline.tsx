@@ -41,7 +41,6 @@ export const MiniAttackTimeline: React.FC = () => {
       Botnet:   'text-orange-500 dark:text-orange-400',
       Replay:   'text-purple-500 dark:text-purple-400',
       Spoofing: 'text-yellow-500 dark:text-yellow-400',
-      MitM:     'text-yellow-500 dark:text-yellow-400',
     };
     return colors[type] ?? 'text-gray-500';
   };
@@ -52,7 +51,6 @@ export const MiniAttackTimeline: React.FC = () => {
       Botnet:   'text-orange-500 dark:text-orange-400',
       Replay:   'text-purple-500 dark:text-purple-400',
       Spoofing: 'text-yellow-500 dark:text-yellow-400',
-      MitM:     'text-yellow-500 dark:text-yellow-400',
       Benign:   'text-green-500 dark:text-green-400',
     };
     return colors[result] ?? 'text-gray-500';
