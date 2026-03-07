@@ -11,7 +11,7 @@ export const DashboardPage: React.FC = () => {
       {/* Page Header - Compact */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Security Operations Center</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">SafeNode</h1>
           <p className="text-xs text-gray-500 dark:text-gray-400">Real-time monitoring</p>
         </div>
         <div className="flex items-center space-x-2 text-xs">
