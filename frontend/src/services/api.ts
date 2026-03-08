@@ -60,4 +60,9 @@ export const portsAPI = {
   seedPorts: () => api.post('/ports/seed/sample'),
 };
 
+// System Logs APIs
+export const systemLogsAPI = {
+  getLogs: () => api.get('/system-logs'),
+};
+
 export default api;

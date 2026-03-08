@@ -13,4 +13,4 @@ def create_system_log(db: Session, log: SystemLogsCreate):
 
 
 def get_system_logs(db: Session):
-    return db.query(SystemLogs).all()
+    return db.query(SystemLogs).order_by(SystemLogs.timestamp.desc()).all()
