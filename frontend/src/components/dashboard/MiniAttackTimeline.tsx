@@ -7,8 +7,8 @@ interface RecentEvent {
   timestamp: string;
   attack_type: string;
   src_ip: string | null;
-  ml_result: string;
-  dl_detected: boolean;
+  ml: boolean | null;
+  dl: boolean | null;
 }
 
 export const MiniAttackTimeline: React.FC = () => {
@@ -45,20 +45,10 @@ export const MiniAttackTimeline: React.FC = () => {
     return colors[type] ?? 'text-gray-500';
   };
 
-  const getMLResultColor = (result: string) => {
-    const colors: Record<string, string> = {
-      DOS:      'text-red-500 dark:text-red-400',
-      Botnet:   'text-orange-500 dark:text-orange-400',
-      Replay:   'text-purple-500 dark:text-purple-400',
-      Spoofing: 'text-yellow-500 dark:text-yellow-400',
-      Benign:   'text-green-500 dark:text-green-400',
-    };
-    return colors[result] ?? 'text-gray-500';
-  };
 
   const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { hour12: false });
+    const normalized = timestamp.includes('Z') || timestamp.includes('+') ? timestamp : timestamp + 'Z';
+    return new Date(normalized).toLocaleTimeString('en-US', { hour12: false });
   };
 
   return (
@@ -92,14 +82,15 @@ export const MiniAttackTimeline: React.FC = () => {
             <p className="text-xs text-gray-400 dark:text-gray-500">No events detected yet</p>
           </div>
         ) : (
+          <>
           <table className="w-full text-xs">
             <thead>
               <tr className="text-gray-500 dark:text-gray-400">
                 <th className="text-left pb-2 font-medium">Time</th>
                 <th className="text-left pb-2 font-medium">Type</th>
                 <th className="text-left pb-2 font-medium">Source IP</th>
-                <th className="text-left pb-2 font-medium">ML Result</th>
-                <th className="text-left pb-2 font-medium">DL</th>
+                <th className="text-center pb-2 font-medium">ML</th>
+                <th className="text-center pb-2 font-medium">DL</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -114,25 +105,38 @@ export const MiniAttackTimeline: React.FC = () => {
                   <td className="py-2 font-mono text-gray-900 dark:text-gray-300">
                     {event.src_ip ?? '—'}
                   </td>
-                  <td className={`py-2 font-medium ${getMLResultColor(event.ml_result)}`}>
-                    {event.ml_result}
+                  <td className="py-2 text-center">
+                    <span
+                      title={event.ml === true ? 'Detected by ML model' : event.ml === false ? 'Not detected by ML model' : 'No ML data'}
+                      className={`inline-block w-2.5 h-2.5 rounded-full ${event.ml === true ? 'bg-green-500' : event.ml === false ? 'bg-red-500' : 'bg-gray-400'}`}
+                    />
                   </td>
-                  <td className="py-2">
-                    {event.dl_detected ? (
-                      <span
-                        title="Confirmed by Cloud DL model"
-                        className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300"
-                      >
-                        DL
-                      </span>
-                    ) : (
-                      <span className="text-gray-300 dark:text-gray-600">—</span>
-                    )}
+                  <td className="py-2 text-center">
+                    <span
+                      title={event.dl === true ? 'Detected by DL model' : event.dl === false ? 'Not detected by DL model' : 'No DL data'}
+                      className={`inline-block w-2.5 h-2.5 rounded-full ${event.dl === true ? 'bg-green-500' : event.dl === false ? 'bg-red-500' : 'bg-gray-400'}`}
+                    />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {/* Legend */}
+          <div className="flex items-center space-x-4 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center space-x-1">
+              <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
+              <span>Threat identified</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <span className="inline-block w-2 h-2 rounded-full bg-red-500"></span>
+              <span>Not identified</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <span className="inline-block w-2 h-2 rounded-full bg-gray-400"></span>
+              <span>No data</span>
+            </div>
+          </div>
+          </>
         )}
       </div>
     </div>

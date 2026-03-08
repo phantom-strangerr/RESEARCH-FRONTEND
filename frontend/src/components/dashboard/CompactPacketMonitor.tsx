@@ -46,8 +46,8 @@ export const CompactPacketMonitor: React.FC = () => {
   };
 
   const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { hour12: false });
+    const normalized = timestamp.includes('Z') || timestamp.includes('+') ? timestamp : timestamp + 'Z';
+    return new Date(normalized).toLocaleTimeString('en-US', { hour12: false });
   };
 
   return (

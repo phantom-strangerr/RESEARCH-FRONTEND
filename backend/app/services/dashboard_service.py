@@ -23,6 +23,8 @@ def get_recent_events(db: Session, limit: int = 5):
             DetectionEvents.attack_type,
             DetectionEvents.mitigation,
             TrafficFeatures.src_ip,
+            TrafficFeatures.ml,
+            TrafficFeatures.dl,
         )
         .outerjoin(TrafficFeatures, DetectionEvents.event_id == TrafficFeatures.event_id)
         .filter(DetectionEvents.attack_type != "Normal")
@@ -31,7 +33,15 @@ def get_recent_events(db: Session, limit: int = 5):
         .all()
     )
     return [
-        {"event_id": r.event_id, "timestamp": r.timestamp, "attack_type": r.attack_type, "mitigation": r.mitigation, "src_ip": r.src_ip}
+        {
+            "event_id": r.event_id,
+            "timestamp": r.timestamp,
+            "attack_type": r.attack_type,
+            "mitigation": r.mitigation,
+            "src_ip": r.src_ip,
+            "ml": r.ml,
+            "dl": r.dl,
+        }
         for r in results
     ]
 
