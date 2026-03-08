@@ -18,7 +18,7 @@ export const MiniAttackTimeline: React.FC = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await dashboardAPI.getRecentEvents(5);
+      const response = await dashboardAPI.getRecentEvents(20);
       setEvents(response.data);
       setError(null);
     } catch (err) {

@@ -15,7 +15,7 @@ export const CompactPacketMonitor: React.FC = () => {
 
   const fetchPackets = async () => {
     try {
-      const response = await dashboardAPI.getRecentPackets(5);
+      const response = await dashboardAPI.getRecentPackets(20);
       setPackets(response.data);
       setError(null);
     } catch (err) {
