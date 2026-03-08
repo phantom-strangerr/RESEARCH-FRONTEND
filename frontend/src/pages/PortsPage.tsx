@@ -23,6 +23,12 @@ interface Port {
   updated_at: string | null;
 }
 
+const PROTECTED_PORTS: Record<number, string> = {
+  1:  'Feature Extractor',
+  2:  'Edge Processor',
+  24: 'Up Link',
+};
+
 export const PortsPage: React.FC = () => {
   const [ports, setPorts] = useState<Port[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,6 +76,7 @@ export const PortsPage: React.FC = () => {
   };
 
   const handleIsolateClick = (port: Port) => {
+    if (PROTECTED_PORTS[port.port_number]) return;
     setPortToIsolate(port);
     setShowIsolateModal(true);
   };
@@ -127,6 +134,7 @@ export const PortsPage: React.FC = () => {
   const handleManualIsolateSubmit = async () => {
     const portNum = parseInt(manualPortNumber);
     if (!portNum || !manualIsolateReason.trim()) return;
+    if (PROTECTED_PORTS[portNum]) return;
     const targetPort = ports.find(p => p.port_number === portNum);
     if (!targetPort) return;
     try {
@@ -257,7 +265,11 @@ export const PortsPage: React.FC = () => {
                     </span>
                     <div>
                       <p className="font-bold text-gray-900 dark:text-white">Port {port.port_number}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{port.device_name || 'Unknown'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {PROTECTED_PORTS[port.port_number]
+                          ? <span className="text-blue-500 dark:text-blue-400 font-medium">{PROTECTED_PORTS[port.port_number]}</span>
+                          : port.device_name || 'Unknown'}
+                      </p>
                     </div>
                   </div>
                   <span className={`text-xs font-bold uppercase ${getStatusColor(port.status)}`}>
@@ -319,7 +331,14 @@ export const PortsPage: React.FC = () => {
                 </div>
 
                 {/* Action Button */}
-                {port.status === 'isolated' ? (
+                {PROTECTED_PORTS[port.port_number] ? (
+                  <div className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg text-sm font-medium flex items-center justify-center space-x-2 cursor-not-allowed">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM10 9V7a2 2 0 114 0v2" />
+                    </svg>
+                    <span>{PROTECTED_PORTS[port.port_number]} — Protected</span>
+                  </div>
+                ) : port.status === 'isolated' ? (
                   <button
                     onClick={() => handleLiftClick(port)}
                     className="w-full px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium flex items-center justify-center space-x-2 transition-colors"
@@ -444,6 +463,11 @@ export const PortsPage: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Port Number: *</label>
                     <input type="number" value={manualPortNumber} onChange={(e) => setManualPortNumber(e.target.value)} placeholder="e.g., 1, 2, 3..." min="1" max="48" className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500" />
+                    {PROTECTED_PORTS[parseInt(manualPortNumber)] && (
+                      <p className="mt-2 text-xs text-red-600 dark:text-red-400 font-medium">
+                        Port {manualPortNumber} ({PROTECTED_PORTS[parseInt(manualPortNumber)]}) is protected and cannot be isolated.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason for Isolation: *</label>
@@ -452,7 +476,7 @@ export const PortsPage: React.FC = () => {
                 </div>
                 <div className="flex space-x-3">
                   <button onClick={() => { setShowManualIsolateModal(false); setManualPortNumber(''); setManualIsolateReason(''); }} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
-                  <button onClick={handleManualIsolateSubmit} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">Isolate Port</button>
+                  <button onClick={handleManualIsolateSubmit} disabled={!!PROTECTED_PORTS[parseInt(manualPortNumber)]} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg font-medium">Isolate Port</button>
                 </div>
               </div>
             </div>
