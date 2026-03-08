@@ -118,3 +118,49 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
         {"time": label, "normal": v["normal"], "attack": v["attack"]}
         for label, v in buckets.items()
     ]
+
+
+def get_link_health(db: Session):
+    """Derive link health metrics from traffic_features (last 10 minutes)."""
+    now = datetime.now(timezone.utc)
+    start = now - timedelta(minutes=10)
+
+    rows = (
+        db.query(TrafficFeatures.classification, TrafficFeatures.timestamp)
+        .filter(TrafficFeatures.timestamp >= start)
+        .all()
+    )
+
+    total = len(rows)
+    normal = sum(1 for r in rows if r.classification and r.classification.lower() == "normal")
+    attack = total - normal
+    success_rate = round((normal / total) * 100, 1) if total > 0 else 0.0
+    packet_rate = round(total / 10, 1)  # per minute average over 10 min window
+
+    return {
+        "total_packets": total,
+        "normal_packets": normal,
+        "attack_packets": attack,
+        "success_rate": success_rate,
+        "packet_rate_per_min": packet_rate,
+        "window_minutes": 10,
+    }
+
+
+def get_model_health(db: Session):
+    """Count detections attributed to ML vs DL models from traffic_features."""
+    rows = db.query(TrafficFeatures.ml, TrafficFeatures.dl, TrafficFeatures.classification).all()
+
+    total = len(rows)
+    ml_detections = sum(1 for r in rows if r.ml is True)
+    dl_detections = sum(1 for r in rows if r.dl is True)
+    ml_attacks = sum(1 for r in rows if r.ml is True and r.classification and r.classification.lower() != "normal")
+    dl_attacks = sum(1 for r in rows if r.dl is True and r.classification and r.classification.lower() != "normal")
+
+    return {
+        "total_records": total,
+        "ml_detections": ml_detections,
+        "dl_detections": dl_detections,
+        "ml_attacks_flagged": ml_attacks,
+        "dl_attacks_flagged": dl_attacks,
+    }
