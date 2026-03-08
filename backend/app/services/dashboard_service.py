@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.models.traffic_features import TrafficFeatures
 from app.models.detection_event import DetectionEvents
 from app.models.switch_port import SwitchPort
+from datetime import datetime, timedelta, timezone
 
 
 def get_recent_packets(db: Session, limit: int = 5):
@@ -81,3 +83,38 @@ def get_dashboard_stats(db: Session):
     total_devices = db.query(SwitchPort).count()
     isolated_ports = db.query(SwitchPort).filter(SwitchPort.status == "isolated").count()
     return {"total_devices": total_devices, "isolated_ports": isolated_ports}
+
+
+def get_traffic_timeline(db: Session, minutes: int = 10):
+    """Aggregate traffic_features into per-minute buckets for the last N minutes."""
+    now = datetime.now(timezone.utc)
+    start = now - timedelta(minutes=minutes)
+
+    rows = (
+        db.query(TrafficFeatures.timestamp, TrafficFeatures.classification)
+        .filter(TrafficFeatures.timestamp >= start)
+        .all()
+    )
+
+    # Build per-minute buckets
+    buckets: dict[str, dict[str, int]] = {}
+    for i in range(minutes):
+        t = start + timedelta(minutes=i)
+        label = t.strftime("%H:%M")
+        buckets[label] = {"normal": 0, "attack": 0}
+
+    for row in rows:
+        ts = row.timestamp
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        label = ts.strftime("%H:%M")
+        if label in buckets:
+            if row.classification and row.classification.lower() == "normal":
+                buckets[label]["normal"] += 1
+            else:
+                buckets[label]["attack"] += 1
+
+    return [
+        {"time": label, "normal": v["normal"], "attack": v["attack"]}
+        for label, v in buckets.items()
+    ]

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.dashboard import RecentPacket, RecentEvent, AlertDetail
-from app.services.dashboard_service import get_recent_packets, get_recent_events, get_alerts, get_dashboard_stats
+from app.services.dashboard_service import get_recent_packets, get_recent_events, get_alerts, get_dashboard_stats, get_traffic_timeline
 
 router = APIRouter()
 
@@ -29,3 +29,9 @@ def alerts(db: Session = Depends(get_db)):
 def stats(db: Session = Depends(get_db)):
     """Get key dashboard metrics: total devices and isolated ports."""
     return get_dashboard_stats(db)
+
+
+@router.get("/traffic-timeline")
+def traffic_timeline(minutes: int = 10, db: Session = Depends(get_db)):
+    """Get per-minute normal vs attack packet counts for the last N minutes."""
+    return get_traffic_timeline(db, minutes)

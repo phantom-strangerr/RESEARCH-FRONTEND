@@ -1,16 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { dashboardAPI } from '../../services/api';
+
+interface TrafficPoint {
+  time: string;
+  normal: number;
+  attack: number;
+}
 
 export const MiniTrafficChart: React.FC = () => {
-  const dataPoints = [
-    { label: '14:20', normal: 85, attack: 5 },
-    { label: '14:21', normal: 78, attack: 12 },
-    { label: '14:22', normal: 82, attack: 8 },
-    { label: '14:23', normal: 70, attack: 20 },
-    { label: '14:24', normal: 88, attack: 3 },
-  ];
+  const [dataPoints, setDataPoints] = useState<TrafficPoint[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const maxValue = 100;
+  const fetchData = async () => {
+    try {
+      const res = await dashboardAPI.getTrafficTimeline(10);
+      setDataPoints(res.data);
+    } catch {
+      // keep previous data on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const maxValue = dataPoints.length
+    ? Math.max(...dataPoints.map((p) => p.normal + p.attack), 1)
+    : 1;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 h-full flex flex-col">
@@ -21,26 +42,31 @@ export const MiniTrafficChart: React.FC = () => {
         </Link>
       </div>
 
-      {/* Mini bars */}
-      <div className="space-y-2 flex-1">
-        {dataPoints.map((point, index) => (
-          <div key={index} className="flex items-center space-x-2">
-            <span className="text-xs font-mono text-gray-500 dark:text-gray-400 w-12">{point.label}</span>
-            <div className="flex-1 flex h-4 bg-gray-100 dark:bg-gray-900 rounded overflow-hidden">
-              <div
-                className="bg-green-500"
-                style={{ width: `${(point.normal / maxValue) * 100}%` }}
-                title={`Normal: ${point.normal}`}
-              ></div>
-              <div
-                className="bg-red-500"
-                style={{ width: `${(point.attack / maxValue) * 100}%` }}
-                title={`Attack: ${point.attack}`}
-              ></div>
+      {loading ? (
+        <div className="flex-1 flex items-center justify-center text-xs text-gray-400">Loading...</div>
+      ) : dataPoints.every((p) => p.normal === 0 && p.attack === 0) ? (
+        <div className="flex-1 flex items-center justify-center text-xs text-gray-400">No traffic data</div>
+      ) : (
+        <div className="space-y-2 flex-1">
+          {dataPoints.map((point, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <span className="text-xs font-mono text-gray-500 dark:text-gray-400 w-12">{point.time}</span>
+              <div className="flex-1 flex h-4 bg-gray-100 dark:bg-gray-900 rounded overflow-hidden">
+                <div
+                  className="bg-green-500"
+                  style={{ width: `${(point.normal / maxValue) * 100}%` }}
+                  title={`Normal: ${point.normal}`}
+                ></div>
+                <div
+                  className="bg-red-500"
+                  style={{ width: `${(point.attack / maxValue) * 100}%` }}
+                  title={`Attack: ${point.attack}`}
+                ></div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Legend */}
       <div className="flex items-center space-x-4 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 text-xs">

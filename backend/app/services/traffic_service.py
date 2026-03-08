@@ -13,4 +13,4 @@ def create_traffic_features(db: Session, features: TrafficFeaturesCreate):
 
 
 def get_traffic_features(db: Session):
-    return db.query(TrafficFeatures).all()
+    return db.query(TrafficFeatures).order_by(TrafficFeatures.timestamp.desc()).all()

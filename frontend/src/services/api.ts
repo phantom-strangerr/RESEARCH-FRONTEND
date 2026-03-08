@@ -37,6 +37,7 @@ export const dashboardAPI = {
   getRecentEvents: (limit: number = 5) => api.get(`/dashboard/recent-events?limit=${limit}`),
   getAlerts: () => api.get('/dashboard/alerts'),
   getStats: () => api.get('/dashboard/stats'),
+  getTrafficTimeline: (minutes: number = 10) => api.get(`/dashboard/traffic-timeline?minutes=${minutes}`),
 };
 
 // Live Packets APIs
