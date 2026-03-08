@@ -14,3 +14,7 @@ def create_device_health_log(db: Session, log: DeviceHealthLogsCreate):
 
 def get_device_health_logs(db: Session):
     return db.query(DeviceHealthLogs).all()
+
+
+def get_latest_device_health_log(db: Session):
+    return db.query(DeviceHealthLogs).order_by(DeviceHealthLogs.timestamp.desc()).first()

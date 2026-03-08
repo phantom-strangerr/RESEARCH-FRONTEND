@@ -59,7 +59,7 @@ export const CompactPacketMonitor: React.FC = () => {
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Packet Monitor</h3>
         </div>
         <Link
-          to="/live-packets"
+          to="/packets"
           className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
         >
           View All

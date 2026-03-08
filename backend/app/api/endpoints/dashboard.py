@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.dashboard import RecentPacket, RecentEvent, AlertDetail
-from app.services.dashboard_service import get_recent_packets, get_recent_events, get_alerts
+from app.services.dashboard_service import get_recent_packets, get_recent_events, get_alerts, get_dashboard_stats
 
 router = APIRouter()
 
@@ -23,3 +23,9 @@ def recent_events(limit: int = 5, db: Session = Depends(get_db)):
 def alerts(db: Session = Depends(get_db)):
     """Get all alerts with full details for Alerts page."""
     return get_alerts(db)
+
+
+@router.get("/stats")
+def stats(db: Session = Depends(get_db)):
+    """Get key dashboard metrics: total devices and isolated ports."""
+    return get_dashboard_stats(db)

@@ -36,11 +36,17 @@ export const dashboardAPI = {
   getRecentPackets: (limit: number = 5) => api.get(`/dashboard/recent-packets?limit=${limit}`),
   getRecentEvents: (limit: number = 5) => api.get(`/dashboard/recent-events?limit=${limit}`),
   getAlerts: () => api.get('/dashboard/alerts'),
+  getStats: () => api.get('/dashboard/stats'),
 };
 
 // Live Packets APIs
 export const packetsAPI = {
   getAllPackets: () => api.get('/traffic-features'),
+};
+
+// Device Health APIs
+export const deviceHealthAPI = {
+  getLatest: () => api.get('/device-health/latest'),
 };
 
 // Ports APIs

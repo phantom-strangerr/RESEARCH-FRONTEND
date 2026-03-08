@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.traffic_features import TrafficFeatures
 from app.models.detection_event import DetectionEvents
+from app.models.switch_port import SwitchPort
 
 
 def get_recent_packets(db: Session, limit: int = 5):
@@ -74,3 +75,9 @@ def get_alerts(db: Session):
         }
         for r in results
     ]
+
+
+def get_dashboard_stats(db: Session):
+    total_devices = db.query(SwitchPort).count()
+    isolated_ports = db.query(SwitchPort).filter(SwitchPort.status == "isolated").count()
+    return {"total_devices": total_devices, "isolated_ports": isolated_ports}

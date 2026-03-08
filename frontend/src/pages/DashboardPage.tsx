@@ -1,11 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CompactMetricCard } from '../components/dashboard/CompactMetricCard';
 import { CompactPacketMonitor } from '../components/dashboard/CompactPacketMonitor';
 import { MiniTrafficChart } from '../components/dashboard/MiniTrafficChart';
 import { MiniAttackTimeline } from '../components/dashboard/MiniAttackTimeline';
 import { CompactDeviceHealth } from '../components/dashboard/CompactDeviceHealth';
+import { dashboardAPI } from '../services/api';
 
 export const DashboardPage: React.FC = () => {
+  const [stats, setStats] = useState<{ total_devices: number; isolated_ports: number } | null>(null);
+
+  const fetchStats = async () => {
+    try {
+      const response = await dashboardAPI.getStats();
+      setStats(response.data);
+    } catch {
+      // keep previous values on error
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+    const interval = setInterval(fetchStats, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="h-full flex flex-col space-y-4 overflow-hidden">
       {/* Page Header - Compact */}
@@ -25,7 +43,7 @@ export const DashboardPage: React.FC = () => {
         <div className="grid grid-cols-2 gap-6 max-w-2xl w-full">
           <CompactMetricCard
             title="Total Devices"
-            value="24"
+            value={stats ? String(stats.total_devices) : '—'}
             status="healthy"
             icon={
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,11 +51,11 @@ export const DashboardPage: React.FC = () => {
               </svg>
             }
           />
-          
+
           <CompactMetricCard
             title="Isolated Ports"
-            value="3"
-            status="warning"
+            value={stats ? String(stats.isolated_ports) : '—'}
+            status={stats && stats.isolated_ports > 0 ? 'warning' : 'healthy'}
             icon={
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
