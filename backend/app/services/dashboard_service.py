@@ -120,10 +120,10 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
     ]
 
 
-def get_link_health(db: Session):
-    """Derive link health metrics from traffic_features (last 10 minutes)."""
+def get_link_health(db: Session, minutes: int = 10):
+    """Derive link health metrics from traffic_features (last N minutes)."""
     now = datetime.now(timezone.utc)
-    start = now - timedelta(minutes=10)
+    start = now - timedelta(minutes=minutes)
 
     rows = (
         db.query(TrafficFeatures.classification, TrafficFeatures.timestamp)
@@ -135,7 +135,7 @@ def get_link_health(db: Session):
     normal = sum(1 for r in rows if r.classification and r.classification.lower() == "normal")
     attack = total - normal
     success_rate = round((normal / total) * 100, 1) if total > 0 else 0.0
-    packet_rate = round(total / 10, 1)  # per minute average over 10 min window
+    packet_rate = round(total / minutes, 1)
 
     return {
         "total_packets": total,
@@ -143,7 +143,7 @@ def get_link_health(db: Session):
         "attack_packets": attack,
         "success_rate": success_rate,
         "packet_rate_per_min": packet_rate,
-        "window_minutes": 10,
+        "window_minutes": minutes,
     }
 
 
