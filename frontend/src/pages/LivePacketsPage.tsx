@@ -17,6 +17,7 @@ export const LivePacketsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchIP, setSearchIP] = useState('');
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
   const fetchPackets = async () => {
     try {
@@ -39,7 +40,7 @@ export const LivePacketsPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Search and filter logic
+  // Search, filter, and sort logic
   const filteredPackets = allPackets.filter(packet => {
     // Type filter
     const matchesType = filterType === 'all' || packet.classification === filterType;
@@ -49,6 +50,9 @@ export const LivePacketsPage: React.FC = () => {
       packet.src_ip.toLowerCase().includes(searchTerm) ||
       packet.dst_ip.toLowerCase().includes(searchTerm);
     return matchesType && matchesSearch;
+  }).sort((a, b) => {
+    const diff = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+    return sortOrder === 'desc' ? -diff : diff;
   });
 
   const getClassificationColor = (classification: string) => {
@@ -202,7 +206,22 @@ export const LivePacketsPage: React.FC = () => {
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Timestamp</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <button
+                      onClick={() => setSortOrder(o => o === 'desc' ? 'asc' : 'desc')}
+                      className="flex items-center space-x-1 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                      title={sortOrder === 'desc' ? 'Newest first — click for oldest first' : 'Oldest first — click for newest first'}
+                    >
+                      <span>Timestamp</span>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {sortOrder === 'desc' ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9M3 12h5m10 4l-4-4m0 0l-4 4m4-4v12" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9M3 12h5m10-8l-4 4m0 0l-4-4m4 4V4" />
+                        )}
+                      </svg>
+                    </button>
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Source IP</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dest IP</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Size</th>
