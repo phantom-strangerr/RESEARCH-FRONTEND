@@ -1,35 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { deviceHealthAPI, dashboardAPI } from '../../services/api';
 
-interface CompactDeviceHealth {
+type Status = 'online' | 'warning' | 'offline';
+
+interface DeviceRow {
   name: string;
-  status: 'online' | 'warning' | 'offline';
+  status: Status;
+  detail: string;
 }
 
+const statusColor = { online: 'bg-green-500', warning: 'bg-yellow-500', offline: 'bg-red-500' };
+const statusText  = { online: 'text-green-700 dark:text-green-400', warning: 'text-yellow-700 dark:text-yellow-400', offline: 'text-red-700 dark:text-red-400' };
+
 export const CompactDeviceHealth: React.FC = () => {
-  const devices: CompactDeviceHealth[] = [
-    { name: 'Feature Extractor', status: 'online' },
-    { name: 'Edge ML Device', status: 'online' },
-    { name: 'Cloud DL Model', status: 'online' },
-  ];
+  const [rows, setRows] = useState<DeviceRow[]>([]);
 
-  const getStatusColor = (status: string) => {
-    const colors = {
-      online: 'bg-green-500',
-      warning: 'bg-yellow-500',
-      offline: 'bg-red-500',
-    };
-    return colors[status as keyof typeof colors];
+  const fetchData = async () => {
+    const [hwRes, modelRes] = await Promise.allSettled([
+      deviceHealthAPI.getLatest(),
+      dashboardAPI.getModelHealth(),
+    ]);
+
+    const newRows: DeviceRow[] = [];
+
+    // Edge Device row — derived from CPU usage
+    if (hwRes.status === 'fulfilled') {
+      const hw = hwRes.value.data;
+      const cpu = hw.cpu_usage_percent;
+      const edgeStatus: Status = cpu >= 85 ? 'warning' : 'online';
+      newRows.push({ name: 'Edge Device', status: edgeStatus, detail: `CPU ${cpu.toFixed(0)}%` });
+    } else {
+      newRows.push({ name: 'Edge Device', status: 'offline', detail: 'No data' });
+    }
+
+    // ML / DL model rows — derived from detection counts
+    if (modelRes.status === 'fulfilled') {
+      const m = modelRes.value.data;
+      const mlStatus: Status = m.ml_detections > 0 ? 'online' : 'offline';
+      const dlStatus: Status = m.dl_detections > 0 ? 'online' : 'offline';
+      newRows.push({ name: 'ML Models', status: mlStatus, detail: `${m.ml_detections} records` });
+      newRows.push({ name: 'DL Models', status: dlStatus, detail: `${m.dl_detections} records` });
+    } else {
+      newRows.push({ name: 'ML Models', status: 'offline', detail: 'No data' });
+      newRows.push({ name: 'DL Models', status: 'offline', detail: 'No data' });
+    }
+
+    setRows(newRows);
   };
 
-  const getStatusText = (status: string) => {
-    const text = {
-      online: 'text-green-700 dark:text-green-400',
-      warning: 'text-yellow-700 dark:text-yellow-400',
-      offline: 'text-red-700 dark:text-red-400',
-    };
-    return text[status as keyof typeof text];
-  };
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
@@ -41,17 +65,24 @@ export const CompactDeviceHealth: React.FC = () => {
       </div>
 
       <div className="space-y-2">
-        {devices.map((device, idx) => (
-          <div key={idx} className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${getStatusColor(device.status)}`}></div>
-              <span className="text-sm text-gray-900 dark:text-white">{device.name}</span>
+        {rows.length === 0 ? (
+          <p className="text-xs text-gray-400 dark:text-gray-500">Loading...</p>
+        ) : (
+          rows.map((row, idx) => (
+            <div key={idx} className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${statusColor[row.status]}`}></div>
+                <span className="text-sm text-gray-900 dark:text-white">{row.name}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-gray-400 dark:text-gray-500">{row.detail}</span>
+                <span className={`text-xs font-medium uppercase ${statusText[row.status]}`}>
+                  {row.status}
+                </span>
+              </div>
             </div>
-            <span className={`text-xs font-medium uppercase ${getStatusText(device.status)}`}>
-              {device.status}
-            </span>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
