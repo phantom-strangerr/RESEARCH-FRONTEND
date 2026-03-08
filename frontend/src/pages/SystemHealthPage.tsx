@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { deviceHealthAPI } from '../services/api';
+import { deviceHealthAPI, dashboardAPI } from '../services/api';
 
 interface DeviceHealthLog {
   health_id: string;
@@ -13,75 +13,52 @@ interface DeviceHealthLog {
   network_tx_bytes: number;
 }
 
-const edgeSoftware = {
-  pythonProcesses: [
-    { name: 'feature_extractor.py', status: 'running' as const, pid: 1234 },
-    { name: 'ml_inference.py', status: 'running' as const, pid: 1235 },
-    { name: 'mqtt_publisher.py', status: 'running' as const, pid: 1236 },
-    { name: 'port_controller.py', status: 'running' as const, pid: 1237 },
-  ],
-  mqttStatus: 'connected' as const,
-  services: [
-    { name: 'iot-edge-ml.service', status: 'active' as const },
-    { name: 'mqtt-broker.service', status: 'active' as const },
-    { name: 'network-monitor.service', status: 'active' as const },
-  ],
-};
+interface LinkHealthData {
+  total_packets: number;
+  normal_packets: number;
+  attack_packets: number;
+  success_rate: number;
+  packet_rate_per_min: number;
+  window_minutes: number;
+}
 
-const linkHealth = [
-  {
-    name: 'Feature Extractor ↔ Edge ML',
-    mqttStatus: 'connected' as const,
-    messageRate: 125.5,
-    successRate: 99.8,
-    latency: 2.3,
-    queueDepth: 12,
-    packetLoss: 0.2,
-  },
-  {
-    name: 'Edge ML ↔ Cloud',
-    mqttStatus: 'connected' as const,
-    messageRate: 45.2,
-    successRate: 98.5,
-    latency: 45.8,
-    queueDepth: 8,
-    packetLoss: 1.5,
-    cloudReachable: true,
-    bandwidth: 2.5,
-  },
-];
-
-const modelHealth = {
-  models: [
-    { name: 'XGBoost Classifier', type: 'ML' as const, status: 'online' as const },
-    { name: 'Random Forest', type: 'ML' as const, status: 'online' as const },
-    { name: 'Decision Tree', type: 'ML' as const, status: 'online' as const },
-    { name: 'SVM (Support Vector Machine)', type: 'ML' as const, status: 'online' as const },
-    { name: 'Deep Neural Network (DNN)', type: 'DL' as const, status: 'online' as const },
-  ],
-};
+interface ModelHealthData {
+  total_records: number;
+  ml_detections: number;
+  dl_detections: number;
+  ml_attacks_flagged: number;
+  dl_attacks_flagged: number;
+}
 
 export const SystemHealthPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'edge' | 'links' | 'model'>('edge');
   const [healthData, setHealthData] = useState<DeviceHealthLog | null>(null);
+  const [linkHealth, setLinkHealth] = useState<LinkHealthData | null>(null);
+  const [modelHealth, setModelHealth] = useState<ModelHealthData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchHealth = async () => {
+  const fetchAll = async () => {
     try {
-      const response = await deviceHealthAPI.getLatest();
-      setHealthData(response.data);
+      const [hwRes, linkRes, modelRes] = await Promise.allSettled([
+        deviceHealthAPI.getLatest(),
+        dashboardAPI.getLinkHealth(),
+        dashboardAPI.getModelHealth(),
+      ]);
+      if (hwRes.status === 'fulfilled') setHealthData(hwRes.value.data);
+      if (linkRes.status === 'fulfilled') setLinkHealth(linkRes.value.data);
+      if (modelRes.status === 'fulfilled') setModelHealth(modelRes.value.data);
       setError(null);
     } catch {
-      setError('No health data available from backend');
+      setError('Failed to load health data');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchHealth();
-    const interval = setInterval(fetchHealth, 5000);
+    fetchAll();
+    const interval = setInterval(fetchAll, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -138,7 +115,6 @@ export const SystemHealthPage: React.FC = () => {
       {/* Edge Device Tab */}
       {activeTab === 'edge' && (
         <div className="space-y-6">
-          {/* Hardware Section */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Hardware Metrics</h2>
@@ -156,7 +132,6 @@ export const SystemHealthPage: React.FC = () => {
             ) : (
               <>
                 <div className="grid grid-cols-2 gap-6">
-                  {/* CPU Usage */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">CPU Usage</span>
@@ -169,7 +144,6 @@ export const SystemHealthPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* CPU Temperature */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">CPU Temperature</span>
@@ -183,7 +157,6 @@ export const SystemHealthPage: React.FC = () => {
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Critical: &gt;75°C</p>
                   </div>
 
-                  {/* Memory Usage */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Memory Usage</span>
@@ -196,7 +169,6 @@ export const SystemHealthPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Disk Usage */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Disk Usage</span>
@@ -210,7 +182,6 @@ export const SystemHealthPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Network Stats */}
                 <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Network Sent</p>
@@ -224,117 +195,65 @@ export const SystemHealthPage: React.FC = () => {
               </>
             )}
           </div>
-
-          {/* Software Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Software Status</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Python Processes</h3>
-                <div className="space-y-2">
-                  {edgeSoftware.pythonProcesses.map((process, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900 rounded">
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-2 h-2 rounded-full ${process.status === 'running' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                        <span className="text-sm font-mono text-gray-900 dark:text-white">{process.name}</span>
-                      </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">PID: {process.pid}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">System Services</h3>
-                <div className="space-y-2">
-                  {edgeSoftware.services.map((service, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900 rounded">
-                      <span className="text-sm text-gray-900 dark:text-white">{service.name}</span>
-                      <span className={`text-xs font-medium px-2 py-1 rounded ${
-                        service.status === 'active' ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                        'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                      }`}>
-                        {service.status.toUpperCase()}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">MQTT Client Status</span>
-                <span className="flex items-center space-x-2 text-sm font-medium text-green-600 dark:text-green-400">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="capitalize">{edgeSoftware.mqttStatus}</span>
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
       {/* Link Health Tab */}
       {activeTab === 'links' && (
         <div className="space-y-6">
-          {linkHealth.map((link, idx) => (
-            <div key={idx} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{link.name}</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Traffic Link Health</h2>
+              {linkHealth && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Last {linkHealth.window_minutes} minutes
+                </span>
+              )}
+            </div>
+
+            {isLoading ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400">Loading link health data...</p>
+            ) : !linkHealth ? (
+              <p className="text-sm text-red-500 dark:text-red-400">No link health data available</p>
+            ) : (
               <div className="grid grid-cols-3 gap-6">
                 <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">MQTT Connection</p>
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${link.mqttStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                    <span className={`text-lg font-bold capitalize ${link.mqttStatus === 'connected' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                      {link.mqttStatus}
-                    </span>
-                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Total Packets</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{linkHealth.total_packets}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">last {linkHealth.window_minutes} min</p>
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Message Rate</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{link.messageRate.toFixed(1)}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">msgs/sec</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Normal Packets</p>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{linkHealth.normal_packets}</p>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Attack Packets</p>
+                  <p className={`text-2xl font-bold ${linkHealth.attack_packets > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                    {linkHealth.attack_packets}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Success Rate</p>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{link.successRate.toFixed(1)}%</p>
+                  <p className={`text-2xl font-bold ${getStatusColor(100 - linkHealth.success_rate, { warning: 5, critical: 15 })}`}>
+                    {linkHealth.success_rate}%
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">normal traffic</p>
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Latency (RTT)</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{link.latency.toFixed(1)}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">ms</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Packet Rate</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{linkHealth.packet_rate_per_min}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">packets/min</p>
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Queue Depth</p>
-                  <p className={`text-2xl font-bold ${getStatusColor(link.queueDepth, { warning: 50, critical: 100 })}`}>{link.queueDepth}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">messages</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Link Status</p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                    <span className="text-lg font-bold text-green-600 dark:text-green-400">Active</span>
+                  </div>
                 </div>
-                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Packet Loss</p>
-                  <p className={`text-2xl font-bold ${getStatusColor(link.packetLoss, { warning: 1, critical: 5 })}`}>{link.packetLoss.toFixed(1)}%</p>
-                </div>
-                {'cloudReachable' in link && (
-                  <>
-                    <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Cloud Reachability</p>
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${link.cloudReachable ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                        <span className={`text-lg font-bold ${link.cloudReachable ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          {link.cloudReachable ? 'Reachable' : 'Unreachable'}
-                        </span>
-                      </div>
-                    </div>
-                    {'bandwidth' in link && (
-                      <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Bandwidth</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{(link.bandwidth as number).toFixed(1)}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Mbps</p>
-                      </div>
-                    )}
-                  </>
-                )}
               </div>
-            </div>
-          ))}
+            )}
+          </div>
         </div>
       )}
 
@@ -342,27 +261,74 @@ export const SystemHealthPage: React.FC = () => {
       {activeTab === 'model' && (
         <div className="space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">ML/DL Models Status</h2>
-            <div className="space-y-4">
-              {modelHealth.models.map((model, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-3 h-3 rounded-full ${model.status === 'online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                    <div>
-                      <p className="text-base font-semibold text-gray-900 dark:text-white">{model.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{model.type === 'ML' ? 'Machine Learning' : 'Deep Learning'}</p>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">ML/DL Model Detection Stats</h2>
+
+            {isLoading ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400">Loading model health data...</p>
+            ) : !modelHealth ? (
+              <p className="text-sm text-red-500 dark:text-red-400">No model health data available</p>
+            ) : (
+              <div className="space-y-6">
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Total Records Processed</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{modelHealth.total_records}</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">ML Detections</p>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{modelHealth.ml_detections}</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">DL Detections</p>
+                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{modelHealth.dl_detections}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* ML Model row */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-3 h-3 rounded-full ${modelHealth.ml_detections > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                      <div>
+                        <p className="text-base font-semibold text-gray-900 dark:text-white">ML Models</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Machine Learning — {modelHealth.ml_detections} records processed</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                        modelHealth.ml_detections > 0
+                          ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                      }`}>
+                        {modelHealth.ml_detections > 0 ? 'Active' : 'No Data'}
+                      </span>
+                      <p className="text-xs text-red-500 dark:text-red-400 mt-1">{modelHealth.ml_attacks_flagged} attacks flagged</p>
                     </div>
                   </div>
-                  <span className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    model.status === 'online'
-                      ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                      : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                  }`}>
-                    {model.status === 'online' ? 'Online' : 'Offline'}
-                  </span>
+
+                  {/* DL Model row */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-3 h-3 rounded-full ${modelHealth.dl_detections > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                      <div>
+                        <p className="text-base font-semibold text-gray-900 dark:text-white">DL Models</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Deep Learning — {modelHealth.dl_detections} records processed</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                        modelHealth.dl_detections > 0
+                          ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                      }`}>
+                        {modelHealth.dl_detections > 0 ? 'Active' : 'No Data'}
+                      </span>
+                      <p className="text-xs text-red-500 dark:text-red-400 mt-1">{modelHealth.dl_attacks_flagged} attacks flagged</p>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}

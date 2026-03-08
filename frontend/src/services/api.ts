@@ -38,6 +38,8 @@ export const dashboardAPI = {
   getAlerts: () => api.get('/dashboard/alerts'),
   getStats: () => api.get('/dashboard/stats'),
   getTrafficTimeline: (minutes: number = 10) => api.get(`/dashboard/traffic-timeline?minutes=${minutes}`),
+  getLinkHealth: () => api.get('/dashboard/link-health'),
+  getModelHealth: () => api.get('/dashboard/model-health'),
 };
 
 // Live Packets APIs
