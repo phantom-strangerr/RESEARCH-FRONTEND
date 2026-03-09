@@ -29,14 +29,3 @@ def get_latest_health_log(db: Session = Depends(get_db)):
     return log
 
 
-@router.get("/latest")
-def get_latest_health(db: Session = Depends(get_db)):
-    """Get the most recent device health log."""
-    latest = (
-        db.query(DeviceHealthLogs)
-        .order_by(DeviceHealthLogs.timestamp.desc())
-        .first()
-    )
-    if not latest:
-        return None
-    return latest

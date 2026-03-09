@@ -62,6 +62,8 @@ def get_alerts(db: Session):
             TrafficFeatures.protocol,
             TrafficFeatures.byte_count,
             TrafficFeatures.packet_size,
+            TrafficFeatures.ml,
+            TrafficFeatures.dl,
         )
         .outerjoin(TrafficFeatures, DetectionEvents.event_id == TrafficFeatures.event_id)
         .order_by(DetectionEvents.timestamp.desc())
@@ -82,6 +84,8 @@ def get_alerts(db: Session):
             "protocol": r.protocol,
             "byte_count": r.byte_count,
             "packet_size": r.packet_size,
+            "ml": r.ml,
+            "dl": r.dl,
             "src_mac": None,
             "dst_mac": None,
         }

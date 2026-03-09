@@ -31,7 +31,7 @@ class RecentEvent(BaseModel):
     timestamp: datetime
     attack_type: str
     src_ip: Optional[str] = None
-    mitigation: str
+    mitigation: Optional[str] = None
     ml: Optional[bool] = None
     dl: Optional[bool] = None
 
@@ -53,13 +53,15 @@ class AlertDetail(BaseModel):
     severity: str
     model_name: str
     processing_latency_ms: float
-    mitigation: str
+    mitigation: Optional[str] = None
     # Joined from traffic_features
     src_ip: Optional[str] = None
     dst_ip: Optional[str] = None
     protocol: Optional[str] = None
     byte_count: Optional[int] = None
     packet_size: Optional[float] = None
+    ml: Optional[bool] = None
+    dl: Optional[bool] = None
     # Joined from event_context
     src_mac: Optional[str] = None
     dst_mac: Optional[str] = None

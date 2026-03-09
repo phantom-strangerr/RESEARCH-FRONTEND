@@ -50,7 +50,7 @@ export const packetsAPI = {
 
 // Device Health APIs
 export const deviceHealthAPI = {
-  getLatest: () => api.get('/device-health/latest'),
+  getLatest: () => api.get('/device-health-logs/latest'),
 };
 
 // Ports APIs
