@@ -56,17 +56,24 @@ def isolate_port(db: Session, port_id: UUID, isolation: SwitchPortIsolate, origi
 
 
 def lift_isolation(db: Session, port_id: UUID):
+    """
+    Mark port for lift isolation.
+    IMPORTANT: Do NOT clear original_vlan here.
+    The poller needs it to know which VLAN to restore on the switch.
+    The poller will clear original_vlan after successful restore.
+    """
     db_port = get_port_by_id(db, port_id)
     if not db_port:
         return None
-    restored_vlan = db_port.original_vlan or db_port.vlan or 1
+
     db_port.status = "active"
-    db_port.vlan = restored_vlan
     db_port.isolation_reason = None
     db_port.isolated_at = None
     db_port.isolated_by = None
-    db_port.original_vlan = None
     db_port.alert_event_id = None
+    # original_vlan is intentionally NOT cleared here
+    # The poller will clear it after restoring the VLAN on the switch
+
     db.commit()
     db.refresh(db_port)
     return db_port

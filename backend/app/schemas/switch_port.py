@@ -35,6 +35,7 @@ class SwitchPortUpdate(BaseModel):
     errors: Optional[int] = None
     drops: Optional[int] = None
     last_activity: Optional[datetime] = None
+    original_vlan: Optional[int] = None
 
 
 class SwitchPortIsolate(BaseModel):
