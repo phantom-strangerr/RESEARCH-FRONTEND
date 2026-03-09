@@ -12,5 +12,5 @@ def create_system_log(db: Session, log: SystemLogsCreate):
     return db_log
 
 
-def get_system_logs(db: Session):
-    return db.query(SystemLogs).order_by(SystemLogs.timestamp.desc()).all()
+def get_system_logs(db: Session, limit: int = 100, offset: int = 0):
+    return db.query(SystemLogs).order_by(SystemLogs.timestamp.desc()).offset(offset).limit(limit).all()

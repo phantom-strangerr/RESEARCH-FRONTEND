@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.traffic_features import TrafficFeaturesCreate, TrafficFeatures
@@ -17,5 +17,9 @@ def create_features(features: TrafficFeaturesCreate, db: Session = Depends(get_d
 
 
 @router.get("", response_model=list[TrafficFeatures])
-def get_features(db: Session = Depends(get_db)):
-    return get_traffic_features(db)
+def get_features(
+    limit: int = Query(default=100, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db)
+):
+    return get_traffic_features(db, limit, offset)

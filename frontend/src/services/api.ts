@@ -44,7 +44,8 @@ export const dashboardAPI = {
 
 // Live Packets APIs
 export const packetsAPI = {
-  getAllPackets: () => api.get('/traffic-features'),
+  getAllPackets: (limit: number = 100, offset: number = 0) =>
+    api.get(`/traffic-features?limit=${limit}&offset=${offset}`),
 };
 
 // Device Health APIs
@@ -65,7 +66,8 @@ export const portsAPI = {
 
 // System Logs APIs
 export const systemLogsAPI = {
-  getLogs: () => api.get('/system-logs'),
+  getLogs: (limit: number = 100, offset: number = 0) =>
+    api.get(`/system-logs?limit=${limit}&offset=${offset}`),
 };
 
 export default api;

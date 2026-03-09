@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.system_log import SystemLogsCreate, SystemLogs
@@ -17,5 +17,9 @@ def create_log(log: SystemLogsCreate, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=list[SystemLogs])
-def get_logs(db: Session = Depends(get_db)):
-    return get_system_logs(db)
+def get_logs(
+    limit: int = Query(default=100, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db)
+):
+    return get_system_logs(db, limit, offset)

@@ -11,34 +11,47 @@ interface PacketData {
   classification: string;
 }
 
+const PAGE_SIZE = 100;
+
 export const LivePacketsPage: React.FC = () => {
   const [allPackets, setAllPackets] = useState<PacketData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchIP, setSearchIP] = useState('');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  const fetchPackets = async () => {
+  const fetchPackets = async (currentOffset = 0, append = false) => {
     try {
-      const response = await packetsAPI.getAllPackets();
-      setAllPackets(response.data);
+      const response = await packetsAPI.getAllPackets(PAGE_SIZE, currentOffset);
+      const newPackets: PacketData[] = response.data;
+      setAllPackets(prev => append ? [...prev, ...newPackets] : newPackets);
+      setHasMore(newPackets.length === PAGE_SIZE);
       setError(null);
     } catch (err) {
       console.error('Failed to fetch packets:', err);
       setError('Failed to load packets');
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchPackets();
-
-    // Auto-refresh every 5 seconds
-    const interval = setInterval(fetchPackets, 5000);
+    fetchPackets(0, false);
+    const interval = setInterval(() => fetchPackets(0, false), 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleLoadMore = async () => {
+    const newOffset = offset + PAGE_SIZE;
+    setOffset(newOffset);
+    setIsLoadingMore(true);
+    await fetchPackets(newOffset, true);
+  };
 
   // Search, filter, and sort logic
   const filteredPackets = allPackets.filter(packet => {
@@ -175,7 +188,7 @@ export const LivePacketsPage: React.FC = () => {
           <div className="p-12 text-center">
             <p className="text-red-500 dark:text-red-400">{error}</p>
             <button
-              onClick={fetchPackets}
+              onClick={() => fetchPackets(0, false)}
               className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline"
             >
               Retry
@@ -204,6 +217,7 @@ export const LivePacketsPage: React.FC = () => {
             )}
           </div>
         ) : (
+          <>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-900">
@@ -251,6 +265,18 @@ export const LivePacketsPage: React.FC = () => {
               </tbody>
             </table>
           </div>
+          {hasMore && (
+            <div className="p-4 text-center border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                {isLoadingMore ? 'Loading...' : 'Load More'}
+              </button>
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>

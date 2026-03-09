@@ -12,5 +12,5 @@ def create_traffic_features(db: Session, features: TrafficFeaturesCreate):
     return db_tf
 
 
-def get_traffic_features(db: Session):
-    return db.query(TrafficFeatures).order_by(TrafficFeatures.timestamp.desc()).all()
+def get_traffic_features(db: Session, limit: int = 100, offset: int = 0):
+    return db.query(TrafficFeatures).order_by(TrafficFeatures.timestamp.desc()).offset(offset).limit(limit).all()
