@@ -1,13 +1,26 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
+
+
+def _ensure_utc(v: datetime) -> datetime:
+    if v.tzinfo is None:
+        return v.replace(tzinfo=timezone.utc)
+    return v
 
 
 class RecentPacket(BaseModel):
     timestamp: datetime
     src_ip: str
     classification: str
+
+    @field_validator('timestamp', mode='before')
+    @classmethod
+    def normalize_timestamp(cls, v):
+        if isinstance(v, datetime):
+            return _ensure_utc(v)
+        return v
 
     class Config:
         from_attributes = True
@@ -19,6 +32,13 @@ class RecentEvent(BaseModel):
     attack_type: str
     src_ip: Optional[str] = None
     mitigation: str
+
+    @field_validator('timestamp', mode='before')
+    @classmethod
+    def normalize_timestamp(cls, v):
+        if isinstance(v, datetime):
+            return _ensure_utc(v)
+        return v
 
     class Config:
         from_attributes = True
