@@ -38,7 +38,7 @@ export const CompactPacketMonitor: React.FC = () => {
     const colors: Record<string, string> = {
       Normal:   'text-green-500 dark:text-green-400',
       DOS:      'text-red-500 dark:text-red-400',
-      Botnet:   'text-orange-500 dark:text-orange-400',
+      Mirai:    'text-pink-500 dark:text-pink-400',
       Replay:   'text-purple-500 dark:text-purple-400',
       Spoofing: 'text-yellow-500 dark:text-yellow-400',
     };

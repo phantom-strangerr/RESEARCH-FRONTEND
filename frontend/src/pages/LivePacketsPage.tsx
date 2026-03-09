@@ -72,7 +72,6 @@ export const LivePacketsPage: React.FC = () => {
     const colors: Record<string, string> = {
       Normal:   'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400',
       DOS:      'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400',
-      Botnet:   'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400',
       Mirai:    'bg-pink-100 dark:bg-pink-900/20 text-pink-700 dark:text-pink-400',
       Replay:   'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400',
       Spoofing: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400',
@@ -123,12 +122,11 @@ export const LivePacketsPage: React.FC = () => {
               Filter by Type
             </label>
             <div className="flex space-x-2">
-              {(['all', 'Normal', 'DOS', 'Botnet', 'Mirai', 'Replay', 'Spoofing'] as const).map((type) => {
+              {(['all', 'Normal', 'DOS', 'Mirai', 'Replay', 'Spoofing'] as const).map((type) => {
                 const activeColors: Record<string, string> = {
                   all:      'bg-blue-600 text-white',
                   Normal:   'bg-green-600 text-white',
                   DOS:      'bg-red-600 text-white',
-                  Botnet:   'bg-orange-600 text-white',
                   Mirai:    'bg-pink-600 text-white',
                   Replay:   'bg-purple-600 text-white',
                   Spoofing: 'bg-yellow-500 text-white',
