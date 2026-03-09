@@ -29,12 +29,12 @@ API_BASE_URL = "http://217.217.248.193/api/v1"
 # SAMPLE DATA POOLS
 # ============================================================
 
-ATTACK_TYPES = ["DOS", "Botnet", "Replay", "Spoofing"]
+ATTACK_TYPES = ["DOS", "Mirai", "Replay", "Spoofing"]
 SEVERITIES = ["critical", "high", "medium", "low"]
 MODEL_NAMES = ["XGBoost-Edge-v2", "CNN-Cloud-v1", "RandomForest-Edge-v1", "DL-Hybrid-v3"]
 MITIGATIONS = ["port_disabled", "mac_blocked", "rate_limited", "quarantined", "none"]
 PROTOCOLS = ["TCP", "UDP", "ICMP", "HTTP", "HTTPS", "DNS", "ARP"]
-CLASSIFICATIONS = ["DOS", "Botnet", "Replay", "Spoofing", "Normal"]
+CLASSIFICATIONS = ["DOS", "Mirai", "Replay", "Spoofing", "Normal"]
 
 # Realistic IoT device IPs
 SOURCE_IPS = [
@@ -98,7 +98,7 @@ def seed_detection_events(count=20):
         # Severity correlates with attack type
         if attack_type == "DOS":
             severity = weighted_choice(SEVERITIES, weights=[40, 35, 20, 5])
-        elif attack_type == "Botnet":
+        elif attack_type == "Mirai":
             severity = weighted_choice(SEVERITIES, weights=[25, 40, 25, 10])
         elif attack_type == "Spoofing":
             severity = weighted_choice(SEVERITIES, weights=[20, 35, 30, 15])
@@ -166,6 +166,7 @@ def seed_traffic_features(events, extra_normal=15):
     for i, event in enumerate(events):
         src_ip = event["src_ip"]
 
+        is_attack = event["attack_type"] != "Normal"
         feature_data = {
             "event_id": event["event_id"],
             "src_ip": src_ip,
@@ -176,6 +177,8 @@ def seed_traffic_features(events, extra_normal=15):
             "ttl": random.choice([32, 64, 128, 255]),
             "classification": event["attack_type"],
             "timestamp": random_timestamp(hours_back=48),
+            "ml": random.random() < 0.85 if is_attack else random.random() < 0.1,
+            "dl": random.random() < 0.80 if is_attack else random.random() < 0.05,
         }
 
         try:
@@ -232,6 +235,8 @@ def seed_traffic_features(events, extra_normal=15):
                 "ttl": random.choice([64, 128]),
                 "classification": "Normal",
                 "timestamp": random_timestamp(hours_back=24),
+                "ml": random.random() < 0.05,
+                "dl": random.random() < 0.03,
             }
 
             response = requests.post(
