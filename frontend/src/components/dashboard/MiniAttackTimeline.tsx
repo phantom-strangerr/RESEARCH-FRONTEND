@@ -99,7 +99,7 @@ export const MiniAttackTimeline: React.FC = () => {
                   <td className="py-2 font-mono text-gray-500 dark:text-gray-400">
                     {formatTime(event.timestamp)}
                   </td>
-                  <td className={`py-2 font-bold ${getTypeColor(event.attack_type)}`}>
+                  <td className={`py-2 font-bold whitespace-nowrap ${getTypeColor(event.attack_type)}`}>
                     {event.attack_type}
                   </td>
                   <td className="py-2 font-mono text-gray-900 dark:text-gray-300">
