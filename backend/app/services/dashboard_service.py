@@ -7,12 +7,16 @@ from datetime import datetime, timedelta, timezone
 
 
 def get_recent_packets(db: Session, limit: int = 5):
-    return (
-        db.query(TrafficFeatures)
+    results = (
+        db.query(TrafficFeatures.timestamp, TrafficFeatures.src_ip, TrafficFeatures.classification)
         .order_by(TrafficFeatures.timestamp.desc())
         .limit(limit)
         .all()
     )
+    return [
+        {"timestamp": r.timestamp, "src_ip": r.src_ip, "classification": r.classification}
+        for r in results
+    ]
 
 
 _ATTACK_TYPE_ALIASES = {
@@ -125,22 +129,36 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
     if latest_ts is None:
         return [{"time": "—", "normal": 0, "attack": 0}]
 
-    # Normalise to naive for arithmetic (strip tz, keep the clock value as-is)
-    if hasattr(latest_ts, "tzinfo") and latest_ts.tzinfo is not None:
-        latest_ts = latest_ts.replace(tzinfo=None)
+    # Keep timezone info consistent: strip tz for label arithmetic,
+    # but use the original tz-aware value for the DB filter.
+    latest_ts_aware = latest_ts  # used for DB filter (preserves tz)
+    latest_ts_naive = (
+        latest_ts.replace(tzinfo=None)
+        if hasattr(latest_ts, "tzinfo") and latest_ts.tzinfo is not None
+        else latest_ts
+    )
 
-    start = latest_ts - timedelta(minutes=minutes)
+    # Round down to the minute so the newest bucket always contains latest_ts
+    latest_minute = latest_ts_naive.replace(second=0, microsecond=0)
+    # Window: (minutes-1) buckets before latest_minute + latest_minute = N buckets
+    start_naive = latest_minute - timedelta(minutes=minutes - 1)
+
+    # For the DB filter, use the same offset as latest_ts_aware
+    if hasattr(latest_ts_aware, "tzinfo") and latest_ts_aware.tzinfo is not None:
+        start_filter = start_naive.replace(tzinfo=latest_ts_aware.tzinfo)
+    else:
+        start_filter = start_naive
 
     rows = (
         db.query(TrafficFeatures.timestamp, TrafficFeatures.classification)
-        .filter(TrafficFeatures.timestamp >= start)
+        .filter(TrafficFeatures.timestamp >= start_filter)
         .all()
     )
 
-    # Build per-minute buckets anchored to start
+    # Build per-minute buckets: start_naive … latest_minute (inclusive, N buckets)
     buckets: dict[str, dict[str, int]] = {}
     for i in range(minutes):
-        t = start + timedelta(minutes=i)
+        t = start_naive + timedelta(minutes=i)
         label = t.strftime("%H:%M")
         buckets[label] = {"normal": 0, "attack": 0}
 
@@ -172,13 +190,22 @@ def get_link_health(db: Session, minutes: int = 10):
             "success_rate": 0.0, "packet_rate_per_min": 0.0, "window_minutes": minutes,
         }
 
-    if hasattr(latest_ts, "tzinfo") and latest_ts.tzinfo is not None:
-        latest_ts = latest_ts.replace(tzinfo=None)
-    start = latest_ts - timedelta(minutes=minutes)
+    latest_ts_aware = latest_ts
+    latest_ts_naive = (
+        latest_ts.replace(tzinfo=None)
+        if hasattr(latest_ts, "tzinfo") and latest_ts.tzinfo is not None
+        else latest_ts
+    )
+    start_naive = latest_ts_naive - timedelta(minutes=minutes)
+    start_filter = (
+        start_naive.replace(tzinfo=latest_ts_aware.tzinfo)
+        if hasattr(latest_ts_aware, "tzinfo") and latest_ts_aware.tzinfo is not None
+        else start_naive
+    )
 
     rows = (
         db.query(TrafficFeatures.classification, TrafficFeatures.timestamp)
-        .filter(TrafficFeatures.timestamp >= start)
+        .filter(TrafficFeatures.timestamp >= start_filter)
         .all()
     )
 
