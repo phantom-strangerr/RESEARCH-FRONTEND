@@ -32,6 +32,8 @@ class RecentEvent(BaseModel):
     attack_type: str
     src_ip: Optional[str] = None
     mitigation: str
+    ml: Optional[bool] = None
+    dl: Optional[bool] = None
 
     @field_validator('timestamp', mode='before')
     @classmethod
