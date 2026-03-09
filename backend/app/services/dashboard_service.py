@@ -15,6 +15,18 @@ def get_recent_packets(db: Session, limit: int = 5):
     )
 
 
+_ATTACK_TYPE_ALIASES = {
+    "spoof":    "Spoofing",
+    "spoofing": "Spoofing",
+    "dos":      "DOS",
+    "mirai":    "Mirai",
+    "replay":   "Replay",
+}
+
+def _normalize_attack_type(raw: str) -> str:
+    return _ATTACK_TYPE_ALIASES.get(raw.strip().lower(), raw)
+
+
 def get_recent_events(db: Session, limit: int = 5):
     results = (
         db.query(
@@ -36,7 +48,7 @@ def get_recent_events(db: Session, limit: int = 5):
         {
             "event_id": r.event_id,
             "timestamp": r.timestamp,
-            "attack_type": r.attack_type,
+            "attack_type": _normalize_attack_type(r.attack_type),
             "mitigation": r.mitigation,
             "src_ip": r.src_ip,
             "ml": r.ml,
@@ -74,7 +86,7 @@ def get_alerts(db: Session):
         {
             "event_id": r.event_id,
             "timestamp": r.timestamp,
-            "attack_type": r.attack_type,
+            "attack_type": _normalize_attack_type(r.attack_type),
             "severity": r.severity,
             "model_name": r.model_name,
             "processing_latency_ms": r.processing_latency_ms,
@@ -100,9 +112,24 @@ def get_dashboard_stats(db: Session):
 
 
 def get_traffic_timeline(db: Session, minutes: int = 10):
-    """Aggregate traffic_features into per-minute buckets for the last N minutes."""
-    now = datetime.now(timezone.utc)
-    start = now - timedelta(minutes=minutes)
+    """Aggregate traffic_features into per-minute buckets for the last N minutes.
+
+    Anchors the window to the most recent timestamp in the table so the chart
+    always shows data regardless of timezone differences between the edge device
+    and the backend server.
+    """
+    from sqlalchemy import func as sqlfunc
+
+    # Use the latest stored timestamp as anchor (timezone-safe)
+    latest_ts = db.query(sqlfunc.max(TrafficFeatures.timestamp)).scalar()
+    if latest_ts is None:
+        return [{"time": "—", "normal": 0, "attack": 0}]
+
+    # Normalise to naive for arithmetic (strip tz, keep the clock value as-is)
+    if hasattr(latest_ts, "tzinfo") and latest_ts.tzinfo is not None:
+        latest_ts = latest_ts.replace(tzinfo=None)
+
+    start = latest_ts - timedelta(minutes=minutes)
 
     rows = (
         db.query(TrafficFeatures.timestamp, TrafficFeatures.classification)
@@ -110,7 +137,7 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
         .all()
     )
 
-    # Build per-minute buckets
+    # Build per-minute buckets anchored to start
     buckets: dict[str, dict[str, int]] = {}
     for i in range(minutes):
         t = start + timedelta(minutes=i)
@@ -119,8 +146,8 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
 
     for row in rows:
         ts = row.timestamp
-        if ts.tzinfo is None:
-            ts = ts.replace(tzinfo=timezone.utc)
+        if hasattr(ts, "tzinfo") and ts.tzinfo is not None:
+            ts = ts.replace(tzinfo=None)
         label = ts.strftime("%H:%M")
         if label in buckets:
             if row.classification and row.classification.lower() == "normal":
@@ -136,8 +163,18 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
 
 def get_link_health(db: Session, minutes: int = 10):
     """Derive link health metrics from traffic_features (last N minutes)."""
-    now = datetime.now(timezone.utc)
-    start = now - timedelta(minutes=minutes)
+    from sqlalchemy import func as sqlfunc
+
+    latest_ts = db.query(sqlfunc.max(TrafficFeatures.timestamp)).scalar()
+    if latest_ts is None:
+        return {
+            "total_packets": 0, "normal_packets": 0, "attack_packets": 0,
+            "success_rate": 0.0, "packet_rate_per_min": 0.0, "window_minutes": minutes,
+        }
+
+    if hasattr(latest_ts, "tzinfo") and latest_ts.tzinfo is not None:
+        latest_ts = latest_ts.replace(tzinfo=None)
+    start = latest_ts - timedelta(minutes=minutes)
 
     rows = (
         db.query(TrafficFeatures.classification, TrafficFeatures.timestamp)
