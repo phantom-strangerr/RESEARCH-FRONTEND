@@ -20,9 +20,13 @@ def recent_events(limit: int = Query(default=5, ge=1, le=100), db: Session = Dep
 
 
 @router.get("/alerts", response_model=list[AlertDetail])
-def alerts(db: Session = Depends(get_db)):
-    """Get all alerts with full details for Alerts page."""
-    return get_alerts(db)
+def alerts(
+    limit: int = Query(default=50, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db)
+):
+    """Get alerts with full details for Alerts page (paginated)."""
+    return get_alerts(db, limit, offset)
 
 
 @router.get("/stats")

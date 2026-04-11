@@ -62,8 +62,8 @@ def get_recent_events(db: Session, limit: int = 5):
     ]
 
 
-def get_alerts(db: Session):
-    """Get all detection events with joined traffic data for Alerts page."""
+def get_alerts(db: Session, limit: int = 50, offset: int = 0):
+    """Get detection events with joined traffic data for Alerts page (paginated)."""
     results = (
         db.query(
             TrafficFeatures.event_id,
@@ -83,6 +83,8 @@ def get_alerts(db: Session):
         )
         .join(DetectionEvents, TrafficFeatures.event_id == DetectionEvents.event_id)
         .order_by(TrafficFeatures.timestamp.desc())
+        .offset(offset)
+        .limit(limit)
         .all()
     )
 
