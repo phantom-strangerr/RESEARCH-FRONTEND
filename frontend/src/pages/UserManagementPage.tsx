@@ -167,24 +167,24 @@ export const UserManagementPage: React.FC = () => {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center space-x-2 text-sm">
-        <Link to="/dashboard" className="text-blue-600 dark:text-blue-400 hover:underline">
+        <Link to="/dashboard" className="text-indigo-500 dark:text-indigo-400 hover:underline">
           Dashboard
         </Link>
         <span className="text-gray-500">/</span>
-        <span className="text-gray-900 dark:text-white">User Management</span>
+        <span className="text-slate-900 dark:text-white">User Management</span>
       </div>
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">User Management</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Manage users, roles, and access permissions
           </p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center space-x-2"
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center space-x-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -197,7 +197,7 @@ export const UserManagementPage: React.FC = () => {
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.total}</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.total}</p>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">Administrators</p>
@@ -205,7 +205,7 @@ export const UserManagementPage: React.FC = () => {
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">Operators</p>
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">{stats.operators}</p>
+          <p className="text-2xl font-bold text-indigo-500 dark:text-indigo-400 mt-1">{stats.operators}</p>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">Analysts</p>
@@ -241,7 +241,7 @@ export const UserManagementPage: React.FC = () => {
                 <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
                   <td className="px-6 py-4">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{user.fullName}</p>
+                      <p className="font-medium text-slate-900 dark:text-white">{user.fullName}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
                       <p className="text-xs text-gray-400 dark:text-gray-500">@{user.username}</p>
                     </div>
@@ -251,7 +251,7 @@ export const UserManagementPage: React.FC = () => {
                       {getRoleLabel(user.role)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                  <td className="px-6 py-4 text-sm text-slate-900 dark:text-white">
                     {user.department || '-'}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -301,7 +301,7 @@ export const UserManagementPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                 {editingUser ? 'Edit User' : 'Add New User'}
               </h3>
               <button
@@ -310,7 +310,7 @@ export const UserManagementPage: React.FC = () => {
                   setEditingUser(null);
                   resetForm();
                 }}
-                className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                className="text-gray-500 hover:text-slate-700 dark:hover:text-slate-700 dark:text-gray-300"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -320,7 +320,7 @@ export const UserManagementPage: React.FC = () => {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
                   Username
                 </label>
                 <input
@@ -328,45 +328,45 @@ export const UserManagementPage: React.FC = () => {
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   disabled={!!editingUser}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white disabled:opacity-50"
                   placeholder="johndoe"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
                   Full Name
                 </label>
                 <input
                   type="text"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white"
                   placeholder="John Doe"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
                   Email
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white"
                   placeholder="john@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
                   Role
                 </label>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white"
                 >
                   <option value="super_admin">Super Admin</option>
                   <option value="security_admin">Security Admin</option>
@@ -376,28 +376,28 @@ export const UserManagementPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
                   Department
                 </label>
                 <input
                   type="text"
                   value={formData.department}
                   onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white"
                   placeholder="Security Operations"
                 />
               </div>
 
               {!editingUser && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
                     Password
                   </label>
                   <input
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white"
                     placeholder="••••••••"
                   />
                 </div>
@@ -411,13 +411,13 @@ export const UserManagementPage: React.FC = () => {
                   setEditingUser(null);
                   resetForm();
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-slate-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
               <button
                 onClick={editingUser ? handleEditUser : handleAddUser}
-                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+                className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium"
               >
                 {editingUser ? 'Update User' : 'Add User'}
               </button>
@@ -431,10 +431,10 @@ export const UserManagementPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">User Details</h3>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">User Details</h3>
               <button
                 onClick={() => setSelectedUser(null)}
-                className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                className="text-gray-500 hover:text-slate-700 dark:hover:text-slate-700 dark:text-gray-300"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -445,15 +445,15 @@ export const UserManagementPage: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Full Name</p>
-                <p className="text-lg font-medium text-gray-900 dark:text-white">{selectedUser.fullName}</p>
+                <p className="text-lg font-medium text-slate-900 dark:text-white">{selectedUser.fullName}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Username</p>
-                <p className="text-lg font-medium text-gray-900 dark:text-white">@{selectedUser.username}</p>
+                <p className="text-lg font-medium text-slate-900 dark:text-white">@{selectedUser.username}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                <p className="text-lg font-medium text-gray-900 dark:text-white">{selectedUser.email}</p>
+                <p className="text-lg font-medium text-slate-900 dark:text-white">{selectedUser.email}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Role</p>
@@ -463,17 +463,17 @@ export const UserManagementPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Department</p>
-                <p className="text-lg font-medium text-gray-900 dark:text-white">{selectedUser.department || '-'}</p>
+                <p className="text-lg font-medium text-slate-900 dark:text-white">{selectedUser.department || '-'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Created At</p>
-                <p className="text-sm text-gray-900 dark:text-white">
+                <p className="text-sm text-slate-900 dark:text-white">
                   {new Date(selectedUser.createdAt).toLocaleString()}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Last Login</p>
-                <p className="text-sm text-gray-900 dark:text-white">
+                <p className="text-sm text-slate-900 dark:text-white">
                   {selectedUser.lastLogin ? new Date(selectedUser.lastLogin).toLocaleString() : 'Never'}
                 </p>
               </div>

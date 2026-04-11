@@ -1,38 +1,94 @@
 @import 'tailwindcss';
 
-/* Light Theme (Default) */
-:root {
-  --color-primary: #2563EB;
-  --color-background: #F8FAFC;
-  --color-surface: #FFFFFF;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
-  --color-success: #16A34A;
-  --color-warning: #F59E0B;
-  --color-danger: #DC2626;
-  --color-info: #0891B2;
-  --color-border: #E5E7EB;
+/* ── Tailwind v4 theme overrides ─────────────────────────────────────────────
+   Light mode grays: remap 700/800/900 to near-white so components that use
+   bg-gray-800/900 look light in light mode and dark in dark mode.           */
+@theme {
+  --color-gray-50:  #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  /* Light mode: map 700/800/900 to light surfaces */
+  --color-gray-700: #e5e7eb;   /* light borders / inputs           */
+  --color-gray-800: #ffffff;   /* card / sidebar / header surface  */
+  --color-gray-900: #f8fafc;   /* page background                  */
+  --color-gray-950: #f1f5f9;
 }
 
-/* Dark Theme */
+/* ── Dark Mode Override ───────────────────────────────────────────────────── */
+/* Overriding @theme vars inside .dark via CSS custom properties cascade      */
 .dark {
-  --color-primary: #3B82F6;
-  --color-background: #0F172A;
-  --color-surface: #1E293B;
-  --color-text-primary: #F1F5F9;
-  --color-text-secondary: #94A3B8;
-  --color-success: #22C55E;
-  --color-warning: #FBBF24;
-  --color-danger: #EF4444;
-  --color-info: #22D3EE;
-  --color-border: #334155;
+  --color-gray-700: #1a2a1a;   /* dark-green borders               */
+  --color-gray-800: #101810;   /* dark-green cards/sidebar/header  */
+  --color-gray-900: #080e0a;   /* dark-green page bg               */
+  --color-gray-950: #040704;
 }
 
-/* Global Styles */
+/* ── Light Theme CSS Variables ───────────────────────────────────────────── */
+:root {
+  --color-primary:          #16a34a;
+  --color-background:       #f8fafc;
+  --color-surface:          #ffffff;
+  --color-text-primary:     #111827;
+  --color-text-secondary:   #6b7280;
+  --color-success:          #16a34a;
+  --color-warning:          #f59e0b;
+  --color-danger:           #dc2626;
+  --color-info:             #0891b2;
+  --color-border:           #e5e7eb;
+}
+
+/* ── Dark Theme CSS Variables ────────────────────────────────────────────── */
+.dark {
+  --color-primary:          #4ade80;
+  --color-background:       #080e0a;
+  --color-surface:          #101810;
+  --color-text-primary:     #ffffff;
+  --color-text-secondary:   #9ca3af;
+  --color-success:          #4ade80;
+  --color-warning:          #fbbf24;
+  --color-danger:           #ef4444;
+  --color-info:             #4ade80;
+  --color-border:           #1a2a1a;
+}
+
+/* ── Global Styles ───────────────────────────────────────────────────────── */
 body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
+}
+
+/* ── Gradient Utilities (theme-aware) ────────────────────────────────────── */
+.card-gradient {
+  background: linear-gradient(135deg, #f8fafc, #ffffff);
+  border: 1px solid #e5e7eb;
+}
+.dark .card-gradient {
+  background: linear-gradient(135deg, #111a12, #0a100a);
+  border-color: #1a2a1a;
+}
+
+.sidebar-gradient {
+  background: #ffffff;
+}
+.dark .sidebar-gradient {
+  background: linear-gradient(180deg, #0d1a0e 0%, #080e0a 100%);
+}
+
+.header-gradient {
+  background: #ffffff;
+}
+.dark .header-gradient {
+  background: linear-gradient(90deg, #0f1a10 0%, #0a100a 100%);
+}
+
+.btn-green {
+  background: linear-gradient(135deg, #22c55e, #10b981);
+  color: white;
 }

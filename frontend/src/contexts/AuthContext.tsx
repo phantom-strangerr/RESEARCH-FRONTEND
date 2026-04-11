@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { authAPI } from '../services/api';
 
-interface User {
+export interface User {
   id: number;
   username: string;
   email: string;
@@ -10,6 +10,8 @@ interface User {
   role: string;
   is_active: boolean;
 }
+
+export type UserRole = 'super_admin' | 'security_admin' | 'network_operator' | 'security_analyst';
 
 interface AuthContextType {
   user: User | null;
@@ -42,8 +44,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.response?.data?.detail || 'Login failed.' };
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { detail?: string } } };
+      return {
+        success: false,
+        error: axiosError.response?.data?.detail || 'Login failed. Check your credentials.',
+      };
     }
   };
 

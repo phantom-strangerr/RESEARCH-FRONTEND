@@ -56,10 +56,10 @@ export const CompactDeviceHealth: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">System Health</h3>
-        <Link to="/system-health" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">System Health</h3>
+        <Link to="/system-health" className="text-xs text-green-400 hover:underline">
           View All
         </Link>
       </div>
@@ -72,7 +72,7 @@ export const CompactDeviceHealth: React.FC = () => {
             <div key={idx} className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${statusColor[row.status]}`}></div>
-                <span className="text-sm text-gray-900 dark:text-white">{row.name}</span>
+                <span className="text-sm text-slate-900 dark:text-white">{row.name}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-gray-400 dark:text-gray-500">{row.detail}</span>

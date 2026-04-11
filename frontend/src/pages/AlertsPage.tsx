@@ -70,10 +70,7 @@ export const AlertsPage: React.FC = () => {
 
   const getAttackTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      DOS:      'text-red-600 dark:text-red-400',
-      Mirai:    'text-pink-600 dark:text-pink-400',
-      Replay:   'text-purple-600 dark:text-purple-400',
-      Spoofing: 'text-yellow-600 dark:text-yellow-400',
+      Mirai: 'text-pink-600 dark:text-pink-400',
     };
     return colors[type] ?? 'text-gray-600';
   };
@@ -87,67 +84,67 @@ export const AlertsPage: React.FC = () => {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center space-x-2 text-sm">
-        <Link to="/dashboard" className="text-blue-600 dark:text-blue-400 hover:underline">
+        <Link to="/dashboard" className="text-green-400 hover:underline">
           Dashboard
         </Link>
         <span className="text-gray-500">/</span>
-        <span className="text-gray-900 dark:text-white">Alerts</span>
+        <span className="text-slate-900 dark:text-white">Alerts</span>
       </div>
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Alert Management</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Alert Management</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Security alerts and mitigation controls
         </p>
       </div>
 
       {isLoading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400">Loading alerts...</p>
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
+          <p className="text-gray-600 dark:text-gray-400">Loading alerts...</p>
         </div>
       ) : error ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
           <p className="text-red-500 dark:text-red-400">{error}</p>
-          <button onClick={fetchAlerts} className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          <button onClick={fetchAlerts} className="mt-3 text-sm text-green-400 hover:underline">
             Retry
           </button>
         </div>
       ) : allAlerts.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p className="text-gray-500 dark:text-gray-400">No alerts detected yet</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Alerts will appear here when attacks are detected</p>
+          <p className="text-gray-600 dark:text-gray-400">No alerts detected yet</p>
+          <p className="text-xs text-gray-500 mt-1">Alerts will appear here when attacks are detected</p>
         </div>
       ) : (
         <>
           {/* Statistics */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Alerts</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.total}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Alerts</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.total}</p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Critical</p>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Critical</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{stats.critical}</p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">High</p>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">High</p>
               <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 mt-1">{stats.high}</p>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Severity</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-gray-300 block mb-2">Severity</label>
                 <select
                   value={filterSeverity}
                   onChange={(e) => setFilterSeverity(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500"
                 >
                   <option value="all">All Severities</option>
                   <option value="critical">Critical</option>
@@ -157,34 +154,31 @@ export const AlertsPage: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Attack Type</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-gray-300 block mb-2">Attack Type</label>
                 <select
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500"
                 >
                   <option value="all">All Types</option>
-                  <option value="DOS">DOS</option>
                   <option value="Mirai">Mirai</option>
-                  <option value="Replay">Replay</option>
-                  <option value="Spoofing">Spoofing</option>
                 </select>
               </div>
             </div>
           </div>
 
           {/* Alerts Grid */}
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Alerts List */}
-            <div className="col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-4">
               {filteredAlerts.map((alert) => (
                 <div
                   key={alert.event_id}
                   onClick={() => setSelectedAlert(alert)}
-                  className={`bg-white dark:bg-gray-800 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                  className={`bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border-2 p-4 cursor-pointer transition-all ${
                     selectedAlert?.event_id === alert.event_id
-                      ? 'border-blue-500'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                      ? 'border-green-400'
+                      : 'border-gray-700 hover:border-green-600'
                   }`}
                 >
                   {/* Top row — severity + attack type + mitigation */}
@@ -197,7 +191,7 @@ export const AlertsPage: React.FC = () => {
                         {alert.attack_type} Attack
                       </span>
                     </div>
-                    <span className="px-2 py-1 rounded text-xs font-medium uppercase bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                    <span className="px-2 py-1 rounded text-xs font-medium uppercase bg-gray-700 text-slate-700 dark:text-gray-300">
                       {formatMitigation(alert.mitigation)}
                     </span>
                   </div>
@@ -205,29 +199,29 @@ export const AlertsPage: React.FC = () => {
                   {/* Middle rows — event details */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Event ID</p>
-                      <p className="font-mono font-medium text-gray-900 dark:text-white text-xs">{alert.event_id.slice(0, 8)}...</p>
+                      <p className="text-gray-600 dark:text-gray-400">Event ID</p>
+                      <p className="font-mono font-medium text-xs text-slate-900 dark:text-white">{alert.event_id.slice(0, 8)}...</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Timestamp</p>
-                      <p className="font-mono text-xs text-gray-900 dark:text-white">
+                      <p className="text-gray-600 dark:text-gray-400">Timestamp</p>
+                      <p className="font-mono text-xs text-slate-900 dark:text-white">
                         {new Date(alert.timestamp).toLocaleString()}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Source IP</p>
-                      <p className="font-mono text-gray-900 dark:text-white">{alert.src_ip ?? '—'}</p>
+                      <p className="text-gray-600 dark:text-gray-400">Source IP</p>
+                      <p className="font-mono text-slate-900 dark:text-white">{alert.src_ip ?? '—'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Model</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{alert.model_name}</p>
+                      <p className="text-gray-600 dark:text-gray-400">Model</p>
+                      <p className="font-medium text-slate-900 dark:text-white">{alert.model_name}</p>
                     </div>
                   </div>
 
                   {/* Bottom-left — ML / DL detection labels */}
-                  <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-gray-700">
                     {alert.ml && (
-                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-green-900/30 text-green-400 border border-green-700">
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                         </svg>
@@ -247,68 +241,68 @@ export const AlertsPage: React.FC = () => {
               ))}
 
               {filteredAlerts.length === 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
-                  <p className="text-gray-500 dark:text-gray-400">No alerts match your filters</p>
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
+                  <p className="text-gray-600 dark:text-gray-400">No alerts match your filters</p>
                 </div>
               )}
             </div>
 
             {/* Detail Panel */}
-            <div className="col-span-1 sticky top-6">
+            <div className="lg:col-span-1 sticky top-6">
               {selectedAlert ? (
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Alert Details</h3>
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-6 space-y-6">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Alert Details</h3>
 
                   <div className="space-y-4 text-sm">
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Severity</p>
+                      <p className="text-gray-600 dark:text-gray-400">Severity</p>
                       <span className={`px-2 py-1 rounded border text-xs font-bold uppercase ${getSeverityColor(selectedAlert.severity)}`}>
                         {selectedAlert.severity}
                       </span>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Protocol</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedAlert.protocol ?? '—'}</p>
+                      <p className="text-gray-600 dark:text-gray-400">Protocol</p>
+                      <p className="font-medium text-slate-900 dark:text-white">{selectedAlert.protocol ?? '—'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Destination IP</p>
-                      <p className="font-mono text-gray-900 dark:text-white">{selectedAlert.dst_ip ?? '—'}</p>
+                      <p className="text-gray-600 dark:text-gray-400">Destination IP</p>
+                      <p className="font-mono text-slate-900 dark:text-white">{selectedAlert.dst_ip ?? '—'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Source MAC</p>
-                      <p className="font-mono text-xs text-gray-900 dark:text-white">{selectedAlert.src_mac ?? '—'}</p>
+                      <p className="text-gray-600 dark:text-gray-400">Source MAC</p>
+                      <p className="font-mono text-xs text-slate-900 dark:text-white">{selectedAlert.src_mac ?? '—'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Destination MAC</p>
-                      <p className="font-mono text-xs text-gray-900 dark:text-white">{selectedAlert.dst_mac ?? '—'}</p>
+                      <p className="text-gray-600 dark:text-gray-400">Destination MAC</p>
+                      <p className="font-mono text-xs text-slate-900 dark:text-white">{selectedAlert.dst_mac ?? '—'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Packet Size</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
+                      <p className="text-gray-600 dark:text-gray-400">Packet Size</p>
+                      <p className="font-medium text-slate-900 dark:text-white">
                         {selectedAlert.packet_size != null ? `${selectedAlert.packet_size}B` : '—'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Bytes Transferred</p>
-                      <p className="font-medium text-gray-900 dark:text-white">
+                      <p className="text-gray-600 dark:text-gray-400">Bytes Transferred</p>
+                      <p className="font-medium text-slate-900 dark:text-white">
                         {selectedAlert.byte_count != null
                           ? `${(selectedAlert.byte_count / 1024).toFixed(2)} KB`
                           : '—'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Processing Latency</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{selectedAlert.processing_latency_ms.toFixed(2)} ms</p>
+                      <p className="text-gray-600 dark:text-gray-400">Processing Latency</p>
+                      <p className="font-medium text-slate-900 dark:text-white">{selectedAlert.processing_latency_ms.toFixed(2)} ms</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400">Mitigation</p>
-                      <p className="font-medium text-gray-900 dark:text-white">{formatMitigation(selectedAlert.mitigation)}</p>
+                      <p className="text-gray-600 dark:text-gray-400">Mitigation</p>
+                      <p className="font-medium text-slate-900 dark:text-white">{formatMitigation(selectedAlert.mitigation)}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 dark:text-gray-400 mb-2">Detection Source</p>
+                      <p className="text-gray-600 dark:text-gray-400 mb-2">Detection Source</p>
                       <div className="flex items-center space-x-2">
                         {selectedAlert.ml && (
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-green-900/30 text-green-400 border border-green-700">
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                             </svg>
@@ -328,11 +322,11 @@ export const AlertsPage: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
-                  <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
+                  <svg className="w-16 h-16 mx-auto mb-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Select an alert to view details</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Select an alert to view details</p>
                 </div>
               )}
             </div>

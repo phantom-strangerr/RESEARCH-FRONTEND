@@ -37,10 +37,7 @@ export const MiniAttackTimeline: React.FC = () => {
 
   const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      DOS:      'text-red-500 dark:text-red-400',
-      Mirai:    'text-pink-500 dark:text-pink-400',
-      Replay:   'text-purple-500 dark:text-purple-400',
-      Spoofing: 'text-yellow-500 dark:text-yellow-400',
+      Mirai: 'text-pink-500 dark:text-pink-400',
     };
     return colors[type] ?? 'text-gray-500';
   };
@@ -52,13 +49,13 @@ export const MiniAttackTimeline: React.FC = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 h-full flex flex-col">
+    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Recent Events</h3>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Recent Events</h3>
         <Link
           to="/alerts"
-          className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+          className="text-xs text-green-400 hover:underline"
         >
           View All
         </Link>
@@ -85,7 +82,7 @@ export const MiniAttackTimeline: React.FC = () => {
           <>
           <table className="w-full text-xs">
             <thead>
-              <tr className="text-gray-500 dark:text-gray-400">
+              <tr className="text-gray-600 dark:text-gray-400">
                 <th className="text-left pb-2 font-medium">Time</th>
                 <th className="text-left pb-2 font-medium">Type</th>
                 <th className="text-left pb-2 font-medium">Source IP</th>
@@ -93,16 +90,16 @@ export const MiniAttackTimeline: React.FC = () => {
                 <th className="text-center pb-2 font-medium">DL</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-700">
               {events.map((event) => (
-                <tr key={event.event_id} className="hover:bg-gray-50 dark:hover:bg-gray-750">
-                  <td className="py-2 font-mono text-gray-500 dark:text-gray-400">
+                <tr key={event.event_id} className="hover:bg-green-900/10">
+                  <td className="py-2 font-mono text-gray-600 dark:text-gray-400">
                     {formatTime(event.timestamp)}
                   </td>
                   <td className={`py-2 font-bold whitespace-nowrap ${getTypeColor(event.attack_type)}`}>
                     {event.attack_type}
                   </td>
-                  <td className="py-2 font-mono text-gray-900 dark:text-gray-300">
+                  <td className="py-2 font-mono text-slate-700 dark:text-gray-300">
                     {event.src_ip ?? '—'}
                   </td>
                   <td className="py-2 text-center">
@@ -122,7 +119,7 @@ export const MiniAttackTimeline: React.FC = () => {
             </tbody>
           </table>
           {/* Legend */}
-          <div className="flex items-center space-x-4 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center space-x-4 mt-2 pt-2 border-t border-gray-700 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex items-center space-x-1">
               <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
               <span>Threat identified</span>

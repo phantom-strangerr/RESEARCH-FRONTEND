@@ -175,68 +175,68 @@ export const PortsPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Port Management</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Port Management</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Monitor and manage switch ports with isolation controls and authorization
         </p>
       </div>
 
       {isLoading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400">Loading port data...</p>
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
+          <p className="text-gray-600 dark:text-gray-400">Loading port data...</p>
         </div>
       ) : error ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
           <p className="text-red-500 dark:text-red-400">{error}</p>
-          <button onClick={fetchPorts} className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:underline">Retry</button>
+          <button onClick={fetchPorts} className="mt-3 text-sm text-green-400 hover:underline">Retry</button>
         </div>
       ) : ports.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
           </svg>
-          <p className="text-gray-500 dark:text-gray-400">No switch ports configured</p>
+          <p className="text-gray-600 dark:text-gray-400">No switch ports configured</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Port data will appear once the edge device starts reporting</p>
         </div>
       ) : (
         <>
           {/* Statistics */}
-          <div className="grid grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Ports</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.total}</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Ports</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.total}</p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.active}</p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Isolated</p>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Isolated</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{stats.isolated}</p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Warning</p>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Warning</p>
               <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">{stats.warning}</p>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Status:</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Filter by Status:</span>
             {['all', 'active', 'isolated', 'warning'].map(status => (
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filterStatus === status
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-700 text-slate-700 dark:text-gray-300 hover:bg-gray-600'
                 }`}
               >
                 {status === 'all' ? `All (${stats.total})` : `${status.charAt(0).toUpperCase() + status.slice(1)} (${stats[status as keyof typeof stats]})`}
               </button>
             ))}
-            <div className="flex-1"></div>
+            <div className="flex-1 hidden sm:block"></div>
             <button
               onClick={() => setShowManualIsolateModal(true)}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
@@ -249,12 +249,12 @@ export const PortsPage: React.FC = () => {
           </div>
 
           {/* Port Cards */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredPorts.map(port => (
               <div
                 key={port.port_id}
-                className={`bg-white dark:bg-gray-800 rounded-lg border-2 p-4 transition-all ${getBorderColor(port.status)} ${
-                  highlightedPorts.has(port.port_id) ? 'ring-2 ring-blue-400 ring-offset-2 dark:ring-offset-gray-900' : ''
+                className={`bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border-2 p-4 transition-all ${getBorderColor(port.status)} ${
+                  highlightedPorts.has(port.port_id) ? 'ring-2 ring-green-400 ring-offset-2 ring-offset-gray-900' : ''
                 }`}
               >
                 {/* Port Header */}
@@ -264,10 +264,10 @@ export const PortsPage: React.FC = () => {
                       {port.status === 'active' ? '✓' : port.status === 'isolated' ? '⊘' : port.status === 'warning' ? '⚠' : '—'}
                     </span>
                     <div>
-                      <p className="font-bold text-gray-900 dark:text-white">Port {port.port_number}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="font-bold text-slate-900 dark:text-white">Port {port.port_number}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
                         {PROTECTED_PORTS[port.port_number]
-                          ? <span className="text-blue-500 dark:text-blue-400 font-medium">{PROTECTED_PORTS[port.port_number]}</span>
+                          ? <span className="text-green-400 font-medium">{PROTECTED_PORTS[port.port_number]}</span>
                           : port.device_name || 'Unknown'}
                       </p>
                     </div>
@@ -280,20 +280,20 @@ export const PortsPage: React.FC = () => {
                 {/* Port Details */}
                 <div className="space-y-1 text-sm mb-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">IP Address</span>
-                    <span className="font-mono text-gray-900 dark:text-white">{port.device_ip || '—'}</span>
+                    <span className="text-gray-600 dark:text-gray-400">IP Address</span>
+                    <span className="font-mono text-slate-900 dark:text-white">{port.device_ip || '—'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">MAC Address</span>
-                    <span className="font-mono text-xs text-gray-900 dark:text-white">{port.device_mac || '—'}</span>
+                    <span className="text-gray-600 dark:text-gray-400">MAC Address</span>
+                    <span className="font-mono text-xs text-slate-900 dark:text-white">{port.device_mac || '—'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">VLAN</span>
-                    <span className="text-gray-900 dark:text-white">{port.vlan ?? '—'}</span>
+                    <span className="text-gray-600 dark:text-gray-400">VLAN</span>
+                    <span className="text-slate-900 dark:text-white">{port.vlan ?? '—'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">Speed</span>
-                    <span className="text-gray-900 dark:text-white">{port.speed || '—'}</span>
+                    <span className="text-gray-600 dark:text-gray-400">Speed</span>
+                    <span className="text-slate-900 dark:text-white">{port.speed || '—'}</span>
                   </div>
                 </div>
 
@@ -313,26 +313,26 @@ export const PortsPage: React.FC = () => {
                 {/* Traffic Stats */}
                 <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Sent</span>
-                    <p className="font-bold text-gray-900 dark:text-white">{port.bytes_sent.toFixed(1)} MB</p>
+                    <span className="text-gray-600 dark:text-gray-400">Sent</span>
+                    <p className="font-bold text-slate-900 dark:text-white">{port.bytes_sent.toFixed(1)} MB</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Received</span>
-                    <p className="font-bold text-gray-900 dark:text-white">{port.bytes_received.toFixed(1)} MB</p>
+                    <span className="text-gray-600 dark:text-gray-400">Received</span>
+                    <p className="font-bold text-slate-900 dark:text-white">{port.bytes_received.toFixed(1)} MB</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Errors</span>
-                    <p className="font-bold text-gray-900 dark:text-white">{port.errors}</p>
+                    <span className="text-gray-600 dark:text-gray-400">Errors</span>
+                    <p className="font-bold text-slate-900 dark:text-white">{port.errors}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Drops</span>
-                    <p className="font-bold text-gray-900 dark:text-white">{port.drops}</p>
+                    <span className="text-gray-600 dark:text-gray-400">Drops</span>
+                    <p className="font-bold text-slate-900 dark:text-white">{port.drops}</p>
                   </div>
                 </div>
 
                 {/* Action Button */}
                 {PROTECTED_PORTS[port.port_number] ? (
-                  <div className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg text-sm font-medium flex items-center justify-center space-x-2 cursor-not-allowed">
+                  <div className="w-full px-4 py-2 bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg text-sm font-medium flex items-center justify-center space-x-2 cursor-not-allowed">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM10 9V7a2 2 0 114 0v2" />
                     </svg>
@@ -364,18 +364,18 @@ export const PortsPage: React.FC = () => {
           </div>
 
           {filteredPorts.length === 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
-              <p className="text-gray-500 dark:text-gray-400">No ports match your filter</p>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
+              <p className="text-gray-600 dark:text-gray-400">No ports match your filter</p>
             </div>
           )}
 
           {/* Auth Modal */}
           {showAuthModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+              <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Authorization Required</h3>
-                  <button onClick={() => setShowAuthModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Authorization Required</h3>
+                  <button onClick={() => setShowAuthModal(false)} className="text-gray-500 hover:text-slate-700 dark:hover:text-gray-300">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -390,18 +390,18 @@ export const PortsPage: React.FC = () => {
                       <strong>Warning:</strong> This device was isolated due to: {portToLift?.isolation_reason}
                     </p>
                   </div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Enter Authorization Code:</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">Enter Authorization Code:</label>
                   <input
                     type="password"
                     value={authCode}
                     onChange={(e) => setAuthCode(e.target.value)}
                     placeholder="Enter code (demo: 1234)"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500"
                     onKeyDown={(e) => e.key === 'Enter' && handleAuthSubmit()}
                   />
                 </div>
                 <div className="flex space-x-3">
-                  <button onClick={() => setShowAuthModal(false)} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+                  <button onClick={() => setShowAuthModal(false)} className="flex-1 px-4 py-2 border border-gray-600 text-slate-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-700">Cancel</button>
                   <button onClick={handleAuthSubmit} className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium">Authorize & Lift</button>
                 </div>
               </div>
@@ -411,10 +411,10 @@ export const PortsPage: React.FC = () => {
           {/* Isolate Modal */}
           {showIsolateModal && portToIsolate && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+              <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Isolate Port</h3>
-                  <button onClick={() => { setShowIsolateModal(false); setPortToIsolate(null); setIsolateReason(''); }} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Isolate Port</h3>
+                  <button onClick={() => { setShowIsolateModal(false); setPortToIsolate(null); setIsolateReason(''); }} className="text-gray-500 hover:text-slate-700 dark:hover:text-gray-300">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -424,22 +424,22 @@ export const PortsPage: React.FC = () => {
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                     You are about to isolate <span className="font-bold">Port {portToIsolate.port_number}</span>
                   </p>
-                  <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded p-3 mb-4">
-                    <p className="text-xs text-blue-800 dark:text-blue-400">
+                  <div className="bg-green-900/10 border border-green-800 rounded p-3 mb-4">
+                    <p className="text-xs text-green-400">
                       <strong>Device:</strong> {portToIsolate.device_name || 'Unknown'} ({portToIsolate.device_ip})
                     </p>
                   </div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason for Isolation: *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">Reason for Isolation: *</label>
                   <textarea
                     value={isolateReason}
                     onChange={(e) => setIsolateReason(e.target.value)}
                     placeholder="e.g., Suspicious traffic detected..."
                     rows={3}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 resize-none"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 resize-none"
                   />
                 </div>
                 <div className="flex space-x-3">
-                  <button onClick={() => { setShowIsolateModal(false); setPortToIsolate(null); setIsolateReason(''); }} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+                  <button onClick={() => { setShowIsolateModal(false); setPortToIsolate(null); setIsolateReason(''); }} className="flex-1 px-4 py-2 border border-gray-600 text-slate-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-700">Cancel</button>
                   <button onClick={handleIsolateSubmit} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">Isolate Port</button>
                 </div>
               </div>
@@ -449,10 +449,10 @@ export const PortsPage: React.FC = () => {
           {/* Manual Isolate Modal */}
           {showManualIsolateModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+              <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Manual Port Isolation</h3>
-                  <button onClick={() => { setShowManualIsolateModal(false); setManualPortNumber(''); setManualIsolateReason(''); }} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Manual Port Isolation</h3>
+                  <button onClick={() => { setShowManualIsolateModal(false); setManualPortNumber(''); setManualIsolateReason(''); }} className="text-gray-500 hover:text-slate-700 dark:hover:text-gray-300">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -461,8 +461,8 @@ export const PortsPage: React.FC = () => {
                 <div className="mb-6 space-y-4">
                   <p className="text-sm text-gray-600 dark:text-gray-400">Enter the port number you want to isolate manually</p>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Port Number: *</label>
-                    <input type="number" value={manualPortNumber} onChange={(e) => setManualPortNumber(e.target.value)} placeholder="e.g., 1, 2, 3..." min="1" max="48" className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500" />
+                    <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">Port Number: *</label>
+                    <input type="number" value={manualPortNumber} onChange={(e) => setManualPortNumber(e.target.value)} placeholder="e.g., 1, 2, 3..." min="1" max="48" className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500" />
                     {PROTECTED_PORTS[parseInt(manualPortNumber)] && (
                       <p className="mt-2 text-xs text-red-600 dark:text-red-400 font-medium">
                         Port {manualPortNumber} ({PROTECTED_PORTS[parseInt(manualPortNumber)]}) is protected and cannot be isolated.
@@ -470,12 +470,12 @@ export const PortsPage: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason for Isolation: *</label>
-                    <textarea value={manualIsolateReason} onChange={(e) => setManualIsolateReason(e.target.value)} placeholder="e.g., Security threat detected..." rows={3} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 resize-none" />
+                    <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">Reason for Isolation: *</label>
+                    <textarea value={manualIsolateReason} onChange={(e) => setManualIsolateReason(e.target.value)} placeholder="e.g., Security threat detected..." rows={3} className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 resize-none" />
                   </div>
                 </div>
                 <div className="flex space-x-3">
-                  <button onClick={() => { setShowManualIsolateModal(false); setManualPortNumber(''); setManualIsolateReason(''); }} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+                  <button onClick={() => { setShowManualIsolateModal(false); setManualPortNumber(''); setManualIsolateReason(''); }} className="flex-1 px-4 py-2 border border-gray-600 text-slate-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-700">Cancel</button>
                   <button onClick={handleManualIsolateSubmit} disabled={!!PROTECTED_PORTS[parseInt(manualPortNumber)]} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg font-medium">Isolate Port</button>
                 </div>
               </div>

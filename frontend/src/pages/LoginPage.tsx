@@ -36,7 +36,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50 to-gray-50 dark:from-gray-900 dark:via-green-950 dark:to-gray-900 flex items-center justify-center p-4">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
@@ -48,18 +48,18 @@ export const LoginPage: React.FC = () => {
       <div className="relative max-w-md w-full">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-4">
             <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">SafeNode</h1>
-          <p className="text-gray-400">Security Operations Center</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">SafeNode</h1>
+          <p className="text-gray-600 dark:text-gray-400">Security Operations Center</p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Sign In</h2>
+        <div className="card-gradient rounded-lg shadow-2xl p-8 border border-gray-700">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Sign In</h2>
 
           {/* Error Message */}
           {error && (
@@ -76,12 +76,12 @@ export const LoginPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="username" className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">
                 Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
@@ -90,7 +90,7 @@ export const LoginPage: React.FC = () => {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Enter your username"
                   autoComplete="username"
                   disabled={isLoading}
@@ -100,12 +100,12 @@ export const LoginPage: React.FC = () => {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
@@ -114,7 +114,7 @@ export const LoginPage: React.FC = () => {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-2 border border-gray-600 rounded-lg bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Enter your password"
                   autoComplete="current-password"
                   disabled={isLoading}
@@ -143,7 +143,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors flex items-center justify-center space-x-2"
+              className="w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 disabled:opacity-50 text-white font-medium rounded-lg transition-all flex items-center justify-center space-x-2"
             >
               {isLoading ? (
                 <>
@@ -170,26 +170,26 @@ export const LoginPage: React.FC = () => {
             <div className="space-y-2 text-xs">
               <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-900 rounded">
                 <span className="text-gray-600 dark:text-gray-400">Super Admin:</span>
-                <code className="text-blue-600 dark:text-blue-400">admin / admin123</code>
+                <code className="text-indigo-500 dark:text-indigo-400">admin / admin123</code>
               </div>
               <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-900 rounded">
                 <span className="text-gray-600 dark:text-gray-400">Security Admin:</span>
-                <code className="text-blue-600 dark:text-blue-400">secadmin / sec123</code>
+                <code className="text-indigo-500 dark:text-indigo-400">secadmin / sec123</code>
               </div>
               <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-900 rounded">
                 <span className="text-gray-600 dark:text-gray-400">Network Operator:</span>
-                <code className="text-blue-600 dark:text-blue-400">operator / op123</code>
+                <code className="text-indigo-500 dark:text-indigo-400">operator / op123</code>
               </div>
               <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-900 rounded">
                 <span className="text-gray-600 dark:text-gray-400">Security Analyst:</span>
-                <code className="text-blue-600 dark:text-blue-400">analyst / analyst123</code>
+                <code className="text-indigo-500 dark:text-indigo-400">analyst / analyst123</code>
               </div>
             </div>
           </div> */}
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-6 text-sm text-gray-400">
+        <div className="text-center mt-6 text-sm text-gray-600 dark:text-gray-400">
           <p>Powered by Edge ML & Cloud Intelligence</p>
         </div>
       </div>

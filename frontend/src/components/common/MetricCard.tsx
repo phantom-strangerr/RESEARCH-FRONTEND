@@ -21,7 +21,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     healthy: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800',
     warning: 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800',
     critical: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800',
-    offline: 'bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800',
+    offline: 'bg-gray-50 dark:bg-gray-900/20 text-slate-700 dark:text-gray-400 border-gray-200 dark:border-gray-800',
   };
 
   const trendIcons = {

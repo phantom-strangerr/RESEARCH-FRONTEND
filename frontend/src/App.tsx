@@ -12,7 +12,7 @@ import { LogsPage } from './pages/LogsPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { PortsPage } from './pages/PortsPage';
 import { UserManagementPage } from './pages/UserManagementPage';
-import { DevicesPage, MetricsPage, ForensicsPage } from './pages/PlaceholderPages';
+import { ForensicsPage } from './pages/PlaceholderPages';
 
 function App() {
   return (

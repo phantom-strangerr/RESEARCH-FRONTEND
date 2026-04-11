@@ -36,11 +36,8 @@ export const CompactPacketMonitor: React.FC = () => {
 
   const getClassificationColor = (classification: string) => {
     const colors: Record<string, string> = {
-      Normal:   'text-green-500 dark:text-green-400',
-      DOS:      'text-red-500 dark:text-red-400',
-      Mirai:    'text-pink-500 dark:text-pink-400',
-      Replay:   'text-purple-500 dark:text-purple-400',
-      Spoofing: 'text-yellow-500 dark:text-yellow-400',
+      Normal: 'text-green-500 dark:text-green-400',
+      Mirai:  'text-pink-500 dark:text-pink-400',
     };
     return colors[classification] ?? 'text-gray-500';
   };
@@ -51,16 +48,16 @@ export const CompactPacketMonitor: React.FC = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 h-full flex flex-col">
+    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Packet Monitor</h3>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Packet Monitor</h3>
         </div>
         <Link
           to="/packets"
-          className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+          className="text-xs text-green-400 hover:underline"
         >
           View All
         </Link>
@@ -92,13 +89,13 @@ export const CompactPacketMonitor: React.FC = () => {
                 <th className="text-left pb-2 font-medium">Type</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-700">
               {packets.map((packet, index) => (
-                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-750">
+                <tr key={index} className="hover:bg-green-900/10">
                   <td className="py-2 font-mono text-gray-500 dark:text-gray-400">
                     {formatTime(packet.timestamp)}
                   </td>
-                  <td className="py-2 font-mono text-gray-900 dark:text-gray-300">
+                  <td className="py-2 font-mono text-slate-900 dark:text-gray-300">
                     {packet.src_ip}
                   </td>
                   <td className={`py-2 font-medium ${getClassificationColor(packet.classification)}`}>

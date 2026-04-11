@@ -16,13 +16,11 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Initialize theme from localStorage or default to 'dark' (SOC dashboards typically use dark mode)
   const [theme, setThemeState] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    return savedTheme || 'dark';
+    const saved = localStorage.getItem('theme') as Theme;
+    return saved || 'dark';
   });
 
-  // Apply theme class to document root
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
@@ -33,13 +31,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setThemeState(prev => prev === 'light' ? 'dark' : 'light');
-  };
-
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-  };
+  const toggleTheme = () => setThemeState(prev => prev === 'light' ? 'dark' : 'light');
+  const setTheme = (t: Theme) => setThemeState(t);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

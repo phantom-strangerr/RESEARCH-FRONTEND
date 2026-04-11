@@ -28,7 +28,7 @@ export const CompactMetricCard: React.FC<CompactMetricCardProps> = ({
         <div className="flex-1">
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{title}</p>
           <div className="flex items-baseline space-x-1">
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">
               {value}
             </p>
             {unit && <span className="text-sm text-gray-600 dark:text-gray-400">{unit}</span>}
