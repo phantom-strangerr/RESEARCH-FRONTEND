@@ -44,7 +44,10 @@ export const DashboardPage: React.FC = () => {
   const totalEvents = Object.values(attackCounts).reduce((a, b) => a + b, 0);
 
   const ATTACK_TYPES = [
-    { label: 'Mirai', color: '#ec4899' },
+    { label: 'Mirai',    color: '#ec4899' },
+    { label: 'DOS',      color: '#f97316' },
+    { label: 'Replay',   color: '#a855f7' },
+    { label: 'Spoofing', color: '#ef4444' },
   ];
 
   const donutData = {

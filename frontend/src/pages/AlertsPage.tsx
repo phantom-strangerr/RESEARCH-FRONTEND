@@ -70,7 +70,10 @@ export const AlertsPage: React.FC = () => {
 
   const getAttackTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      Mirai: 'text-pink-600 dark:text-pink-400',
+      Mirai:    'text-pink-600 dark:text-pink-400',
+      DOS:      'text-orange-600 dark:text-orange-400',
+      Replay:   'text-purple-600 dark:text-purple-400',
+      Spoofing: 'text-red-600 dark:text-red-400',
     };
     return colors[type] ?? 'text-gray-600';
   };
@@ -162,6 +165,9 @@ export const AlertsPage: React.FC = () => {
                 >
                   <option value="all">All Types</option>
                   <option value="Mirai">Mirai</option>
+                  <option value="DOS">DOS</option>
+                  <option value="Replay">Replay</option>
+                  <option value="Spoofing">Spoofing</option>
                 </select>
               </div>
             </div>

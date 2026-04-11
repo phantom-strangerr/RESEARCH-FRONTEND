@@ -37,7 +37,10 @@ export const MiniAttackTimeline: React.FC = () => {
 
   const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      Mirai: 'text-pink-500 dark:text-pink-400',
+      Mirai:    'text-pink-500 dark:text-pink-400',
+      DOS:      'text-orange-500 dark:text-orange-400',
+      Replay:   'text-purple-500 dark:text-purple-400',
+      Spoofing: 'text-red-500 dark:text-red-400',
     };
     return colors[type] ?? 'text-gray-500';
   };

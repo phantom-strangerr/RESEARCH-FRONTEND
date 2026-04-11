@@ -71,7 +71,10 @@ export const LivePacketsPage: React.FC = () => {
   const getClassificationColor = (classification: string) => {
     const colors: Record<string, string> = {
       Normal: 'bg-green-900/30 text-green-400',
-      Mirai:  'bg-pink-900/20 text-pink-400',
+      Mirai:    'bg-pink-900/20 text-pink-400',
+      DOS:      'bg-orange-900/20 text-orange-400',
+      Replay:   'bg-purple-900/20 text-purple-400',
+      Spoofing: 'bg-red-900/20 text-red-400',
     };
     return colors[classification] ?? 'bg-gray-700 text-slate-700 dark:text-gray-300';
   };
@@ -119,11 +122,14 @@ export const LivePacketsPage: React.FC = () => {
               Filter by Type
             </label>
             <div className="flex space-x-2">
-              {(['all', 'Normal', 'Mirai'] as const).map((type) => {
+              {(['all', 'Normal', 'Mirai', 'DOS', 'Replay', 'Spoofing'] as const).map((type) => {
                 const activeColors: Record<string, string> = {
-                  all:    'bg-green-500 text-slate-900 dark:text-white',
-                  Normal: 'bg-green-600 text-slate-900 dark:text-white',
-                  Mirai:  'bg-pink-600 text-slate-900 dark:text-white',
+                  all:      'bg-green-500 text-slate-900 dark:text-white',
+                  Normal:   'bg-green-600 text-slate-900 dark:text-white',
+                  Mirai:    'bg-pink-600 text-slate-900 dark:text-white',
+                  DOS:      'bg-orange-600 text-slate-900 dark:text-white',
+                  Replay:   'bg-purple-600 text-slate-900 dark:text-white',
+                  Spoofing: 'bg-red-600 text-slate-900 dark:text-white',
                 };
                 return (
                   <button

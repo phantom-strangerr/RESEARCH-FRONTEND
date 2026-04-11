@@ -37,7 +37,10 @@ export const CompactPacketMonitor: React.FC = () => {
   const getClassificationColor = (classification: string) => {
     const colors: Record<string, string> = {
       Normal: 'text-green-500 dark:text-green-400',
-      Mirai:  'text-pink-500 dark:text-pink-400',
+      Mirai:    'text-pink-500 dark:text-pink-400',
+      DOS:      'text-orange-500 dark:text-orange-400',
+      Replay:   'text-purple-500 dark:text-purple-400',
+      Spoofing: 'text-red-500 dark:text-red-400',
     };
     return colors[classification] ?? 'text-gray-500';
   };
