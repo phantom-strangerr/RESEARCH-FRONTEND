@@ -32,28 +32,28 @@ def _normalize_attack_type(raw: str) -> str:
 
 
 def get_recent_events(db: Session, limit: int = 5):
+    # Query directly from TrafficFeatures — it holds src_ip, ml, dl, and
+    # classification, so no join is needed.  event_id is the FK to
+    # detection_events and doubles as the unique event identifier.
     results = (
         db.query(
-            DetectionEvents.event_id,
-            DetectionEvents.timestamp,
-            DetectionEvents.attack_type,
-            DetectionEvents.mitigation,
+            TrafficFeatures.event_id,
+            TrafficFeatures.timestamp,
+            TrafficFeatures.classification,
             TrafficFeatures.src_ip,
             TrafficFeatures.ml,
             TrafficFeatures.dl,
         )
-        .outerjoin(TrafficFeatures, DetectionEvents.event_id == TrafficFeatures.event_id)
-        .filter(DetectionEvents.attack_type != "Normal")
-        .order_by(DetectionEvents.timestamp.desc())
+        .filter(TrafficFeatures.classification != "Normal")
+        .order_by(TrafficFeatures.timestamp.desc())
         .limit(limit)
         .all()
     )
     return [
         {
-            "event_id": r.event_id,
+            "event_id": str(r.event_id),
             "timestamp": r.timestamp,
-            "attack_type": _normalize_attack_type(r.attack_type),
-            "mitigation": r.mitigation,
+            "attack_type": _normalize_attack_type(r.classification),
             "src_ip": r.src_ip,
             "ml": r.ml,
             "dl": r.dl,
@@ -66,13 +66,9 @@ def get_alerts(db: Session):
     """Get all detection events with joined traffic data for Alerts page."""
     results = (
         db.query(
-            DetectionEvents.event_id,
-            DetectionEvents.timestamp,
-            DetectionEvents.attack_type,
-            DetectionEvents.severity,
-            DetectionEvents.model_name,
-            DetectionEvents.processing_latency_ms,
-            DetectionEvents.mitigation,
+            TrafficFeatures.event_id,
+            TrafficFeatures.timestamp,
+            TrafficFeatures.classification,
             TrafficFeatures.src_ip,
             TrafficFeatures.dst_ip,
             TrafficFeatures.protocol,
@@ -80,17 +76,21 @@ def get_alerts(db: Session):
             TrafficFeatures.packet_size,
             TrafficFeatures.ml,
             TrafficFeatures.dl,
+            DetectionEvents.severity,
+            DetectionEvents.model_name,
+            DetectionEvents.processing_latency_ms,
+            DetectionEvents.mitigation,
         )
-        .outerjoin(TrafficFeatures, DetectionEvents.event_id == TrafficFeatures.event_id)
-        .order_by(DetectionEvents.timestamp.desc())
+        .join(DetectionEvents, TrafficFeatures.event_id == DetectionEvents.event_id)
+        .order_by(TrafficFeatures.timestamp.desc())
         .all()
     )
 
     return [
         {
-            "event_id": r.event_id,
+            "event_id": str(r.event_id),
             "timestamp": r.timestamp,
-            "attack_type": _normalize_attack_type(r.attack_type),
+            "attack_type": _normalize_attack_type(r.classification),
             "severity": r.severity,
             "model_name": r.model_name,
             "processing_latency_ms": r.processing_latency_ms,
