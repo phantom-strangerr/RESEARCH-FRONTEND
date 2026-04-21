@@ -99,8 +99,8 @@ export const portsAPI = {
 
 // ─── System Logs ──────────────────────────────────────────────────────────────
 export const systemLogsAPI = {
-  getLogs: (limit: number = 100, offset: number = 0) =>
-    api.get('/api/v1/system-logs', { params: { limit, offset } }),
+  getLogs: (limit: number = 100, offset: number = 0, source?: string) =>
+    api.get('/api/v1/system-logs', { params: { limit, offset, ...(source ? { source } : {}) } }),
 };
 
 export default api;

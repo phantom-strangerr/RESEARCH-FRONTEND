@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from typing import Optional
 from app.database import get_db
 from app.schemas.system_log import SystemLogsCreate, SystemLogs
 from app.services.system_log_service import create_system_log, get_system_logs
@@ -20,6 +21,7 @@ def create_log(log: SystemLogsCreate, db: Session = Depends(get_db)):
 def get_logs(
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
+    source: Optional[str] = Query(default=None, description="Filter by log_source (case-insensitive partial match)"),
     db: Session = Depends(get_db)
 ):
-    return get_system_logs(db, limit, offset)
+    return get_system_logs(db, limit, offset, source)
