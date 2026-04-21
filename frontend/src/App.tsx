@@ -12,7 +12,7 @@ import { LogsPage } from './pages/LogsPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { PortsPage } from './pages/PortsPage';
 import { UserManagementPage } from './pages/UserManagementPage';
-import { ForensicsPage } from './pages/PlaceholderPages';
+
 
 function App() {
   return (
@@ -37,8 +37,6 @@ function App() {
                       <Route path="/alerts" element={<AlertsPage />} />
                       <Route path="/ports" element={<PortsPage />} />
                       <Route path="/logs" element={<LogsPage />} />
-                      <Route path="/forensics" element={<ForensicsPage />} />
-                      
                       {/* Admin-only Routes */}
                       <Route
                         path="/users"

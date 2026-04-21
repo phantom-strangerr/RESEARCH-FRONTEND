@@ -125,33 +125,3 @@ export const LogsPage: React.FC = () => {
   );
 };
 
-export const ForensicsPage: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-2">
-        <Link to="/dashboard" className="text-sm text-indigo-500 dark:text-indigo-400 hover:underline">
-          Dashboard
-        </Link>
-        <span className="text-gray-500">/</span>
-        <span className="text-sm text-slate-900 dark:text-white">Forensics</span>
-      </div>
-      
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Attack Forensics</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2">
-          Detailed attack timeline and forensic analysis tools
-        </p>
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8">
-        <div className="text-center text-gray-500 dark:text-gray-400">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <p className="text-lg font-medium mb-2">Full forensic timeline will be here</p>
-          <p className="text-sm">Includes: Detailed event timeline, Attack patterns, Investigation tools</p>
-        </div>
-      </div>
-    </div>
-  );
-};
