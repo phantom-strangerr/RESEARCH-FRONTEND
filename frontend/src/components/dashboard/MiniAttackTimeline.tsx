@@ -47,8 +47,7 @@ export const MiniAttackTimeline: React.FC = () => {
 
 
   const formatTime = (timestamp: string) => {
-    const normalized = timestamp.includes('Z') || timestamp.includes('+') ? timestamp : timestamp + 'Z';
-    return new Date(normalized).toLocaleTimeString('en-US', { hour12: false });
+    return new Date(timestamp).toLocaleTimeString('en-US', { hour12: false });
   };
 
   return (
