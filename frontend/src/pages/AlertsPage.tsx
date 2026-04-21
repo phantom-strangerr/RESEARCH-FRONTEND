@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { dashboardAPI } from '../services/api';
 
+interface AlertStats {
+  total: number;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+}
+
 interface Alert {
   event_id: string;
   timestamp: string;
@@ -25,6 +33,7 @@ const PAGE_SIZE = 50;
 
 export const AlertsPage: React.FC = () => {
   const [allAlerts, setAllAlerts] = useState<Alert[]>([]);
+  const [alertStats, setAlertStats] = useState<AlertStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -36,10 +45,16 @@ export const AlertsPage: React.FC = () => {
 
   const fetchAlerts = async (currentOffset = 0, append = false) => {
     try {
-      const response = await dashboardAPI.getAlerts(PAGE_SIZE, currentOffset);
-      const newAlerts: Alert[] = response.data;
-      setAllAlerts(prev => append ? [...prev, ...newAlerts] : newAlerts);
-      setHasMore(newAlerts.length === PAGE_SIZE);
+      const [alertsRes, statsRes] = await Promise.allSettled([
+        dashboardAPI.getAlerts(PAGE_SIZE, currentOffset),
+        dashboardAPI.getAlertStats(),
+      ]);
+      if (alertsRes.status === 'fulfilled') {
+        const newAlerts: Alert[] = alertsRes.value.data;
+        setAllAlerts(prev => append ? [...prev, ...newAlerts] : newAlerts);
+        setHasMore(newAlerts.length === PAGE_SIZE);
+      }
+      if (statsRes.status === 'fulfilled') setAlertStats(statsRes.value.data);
       setError(null);
     } catch (err) {
       console.error('Failed to fetch alerts:', err);
@@ -49,6 +64,8 @@ export const AlertsPage: React.FC = () => {
       setIsLoadingMore(false);
     }
   };
+
+  const handleRetry = () => fetchAlerts(0, false);
 
   const handleLoadMore = () => {
     const newOffset = offset + PAGE_SIZE;
@@ -68,9 +85,9 @@ export const AlertsPage: React.FC = () => {
   });
 
   const stats = {
-    total: allAlerts.length,
-    critical: allAlerts.filter(a => a.severity === 'critical').length,
-    high: allAlerts.filter(a => a.severity === 'high').length,
+    total:    alertStats?.total    ?? allAlerts.length,
+    critical: alertStats?.critical ?? allAlerts.filter(a => a.severity === 'critical').length,
+    high:     alertStats?.high     ?? allAlerts.filter(a => a.severity === 'high').length,
   };
 
   const getSeverityColor = (severity: string) => {
@@ -124,7 +141,7 @@ export const AlertsPage: React.FC = () => {
       ) : error ? (
         <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-12 text-center">
           <p className="text-red-500 dark:text-red-400">{error}</p>
-          <button onClick={fetchAlerts} className="mt-3 text-sm text-green-400 hover:underline">
+          <button onClick={handleRetry} className="mt-3 text-sm text-green-400 hover:underline">
             Retry
           </button>
         </div>

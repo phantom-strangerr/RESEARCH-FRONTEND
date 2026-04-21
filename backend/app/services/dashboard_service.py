@@ -310,6 +310,25 @@ def get_extractor_health(db: Session, minutes: int = 10):
     }
 
 
+def get_alert_stats(db: Session):
+    """Return total alert counts grouped by severity across all detection_events."""
+    rows = (
+        db.query(DetectionEvents.severity, func.count(DetectionEvents.event_id))
+        .group_by(DetectionEvents.severity)
+        .all()
+    )
+    counts: dict[str, int] = {}
+    for severity, count in rows:
+        counts[severity.lower()] = count
+    return {
+        "total": sum(counts.values()),
+        "critical": counts.get("critical", 0),
+        "high": counts.get("high", 0),
+        "medium": counts.get("medium", 0),
+        "low": counts.get("low", 0),
+    }
+
+
 def get_attack_distribution(db: Session):
     """Count total attack events grouped by attack type across all traffic_features."""
     rows = (

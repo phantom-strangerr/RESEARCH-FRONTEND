@@ -45,6 +45,9 @@ export const dashboardAPI = {
   getAlerts: (limit = 50, offset = 0) =>
     api.get('/api/v1/dashboard/alerts', { params: { limit, offset } }),
 
+  getAlertStats: () =>
+    api.get('/api/v1/dashboard/alerts/stats'),
+
   getStats: () =>
     api.get('/api/v1/dashboard/stats'),
 
