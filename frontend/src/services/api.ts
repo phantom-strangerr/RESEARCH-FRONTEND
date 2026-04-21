@@ -54,6 +54,9 @@ export const dashboardAPI = {
   getLinkHealth: (minutes: number = 10) =>
     api.get('/api/v1/dashboard/link-health', { params: { minutes } }),
 
+  getAttackDistribution: () =>
+    api.get('/api/v1/dashboard/attack-distribution'),
+
   getModelHealth: () =>
     api.get('/api/v1/dashboard/model-health'),
 };

@@ -227,6 +227,23 @@ def get_link_health(db: Session, minutes: int = 10):
     }
 
 
+def get_attack_distribution(db: Session):
+    """Count total attack events grouped by attack type across all traffic_features."""
+    rows = (
+        db.query(TrafficFeatures.classification, func.count(TrafficFeatures.event_id))
+        .filter(TrafficFeatures.classification != "Normal")
+        .group_by(TrafficFeatures.classification)
+        .all()
+    )
+    counts: dict[str, int] = {}
+    total = 0
+    for classification, count in rows:
+        normalized = _normalize_attack_type(classification)
+        counts[normalized] = counts.get(normalized, 0) + count
+        total += count
+    return {"total": total, "counts": counts}
+
+
 def get_model_health(db: Session):
     """Count detections attributed to ML vs DL models from traffic_features."""
     rows = db.query(TrafficFeatures.ml, TrafficFeatures.dl, TrafficFeatures.classification).all()

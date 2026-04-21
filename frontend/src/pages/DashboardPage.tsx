@@ -10,24 +10,24 @@ import { dashboardAPI } from '../services/api'; // backend connections commented
 
 ChartJS.register(ArcElement, Tooltip);
 
-interface Stats       { total_devices: number; isolated_ports: number; }
-interface LinkHealth  { total_packets: number; normal_packets: number; attack_packets: number; success_rate: number; packet_rate_per_min: number; window_minutes: number; }
-interface RecentEvent { event_id: string; timestamp: string; attack_type: string; src_ip: string | null; ml: boolean | null; dl: boolean | null; }
+interface Stats              { total_devices: number; isolated_ports: number; }
+interface LinkHealth         { total_packets: number; normal_packets: number; attack_packets: number; success_rate: number; packet_rate_per_min: number; window_minutes: number; }
+interface AttackDistribution { total: number; counts: Record<string, number>; }
 
 export const DashboardPage: React.FC = () => {
-  const [stats,       setStats]       = useState<Stats       | null>(null);
-  const [linkHealth,  setLinkHealth]  = useState<LinkHealth  | null>(null);
-  const [events,      setEvents]      = useState<RecentEvent[]>([]);
+  const [stats,      setStats]      = useState<Stats             | null>(null);
+  const [linkHealth, setLinkHealth] = useState<LinkHealth         | null>(null);
+  const [attackDist, setAttackDist] = useState<AttackDistribution | null>(null);
 
   const fetchAll = async () => {
-    const [statsRes, linkRes, eventsRes] = await Promise.allSettled([
+    const [statsRes, linkRes, attackDistRes] = await Promise.allSettled([
       dashboardAPI.getStats(),
       dashboardAPI.getLinkHealth(),
-      dashboardAPI.getRecentEvents(20),
+      dashboardAPI.getAttackDistribution(),
     ]);
-    if (statsRes.status   === 'fulfilled') setStats(statsRes.value.data);
-    if (linkRes.status    === 'fulfilled') setLinkHealth(linkRes.value.data);
-    if (eventsRes.status  === 'fulfilled') setEvents(eventsRes.value.data);
+    if (statsRes.status      === 'fulfilled') setStats(statsRes.value.data);
+    if (linkRes.status       === 'fulfilled') setLinkHealth(linkRes.value.data);
+    if (attackDistRes.status === 'fulfilled') setAttackDist(attackDistRes.value.data);
   };
 
   useEffect(() => {
@@ -36,12 +36,9 @@ export const DashboardPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // ── Attack type counts from recent events ──────────────────────────────────
-  const attackCounts = events.reduce<Record<string, number>>((acc, e) => {
-    acc[e.attack_type] = (acc[e.attack_type] || 0) + 1;
-    return acc;
-  }, {});
-  const totalEvents = Object.values(attackCounts).reduce((a, b) => a + b, 0);
+  // ── Attack type counts from backend distribution endpoint ─────────────────
+  const attackCounts = attackDist?.counts ?? {};
+  const totalEvents  = attackDist?.total ?? 0;
 
   const ATTACK_TYPES = [
     { label: 'Mirai',    color: '#ec4899' },
