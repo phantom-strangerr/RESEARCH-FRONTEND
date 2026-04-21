@@ -57,6 +57,9 @@ export const dashboardAPI = {
   getAttackDistribution: () =>
     api.get('/api/v1/dashboard/attack-distribution'),
 
+  getExtractorHealth: (minutes: number = 10) =>
+    api.get('/api/v1/dashboard/extractor-health', { params: { minutes } }),
+
   getModelHealth: () =>
     api.get('/api/v1/dashboard/model-health'),
 };

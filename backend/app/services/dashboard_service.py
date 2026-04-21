@@ -227,6 +227,89 @@ def get_link_health(db: Session, minutes: int = 10):
     }
 
 
+def get_extractor_health(db: Session, minutes: int = 10):
+    """Derive feature extractor health from traffic_features and detection_events."""
+    from sqlalchemy import func as sqlfunc
+
+    # Total features ever extracted
+    total_features = db.query(sqlfunc.count(TrafficFeatures.feature_id)).scalar() or 0
+
+    # Anchor recent window to latest timestamp
+    latest_ts = db.query(sqlfunc.max(TrafficFeatures.timestamp)).scalar()
+
+    throughput_per_min = 0.0
+    recent_count = 0
+    if latest_ts is not None:
+        latest_ts_naive = (
+            latest_ts.replace(tzinfo=None)
+            if hasattr(latest_ts, "tzinfo") and latest_ts.tzinfo is not None
+            else latest_ts
+        )
+        start_naive = latest_ts_naive - timedelta(minutes=minutes)
+        start_filter = (
+            start_naive.replace(tzinfo=latest_ts.tzinfo)
+            if hasattr(latest_ts, "tzinfo") and latest_ts.tzinfo is not None
+            else start_naive
+        )
+        recent_count = (
+            db.query(sqlfunc.count(TrafficFeatures.feature_id))
+            .filter(TrafficFeatures.timestamp >= start_filter)
+            .scalar() or 0
+        )
+        throughput_per_min = round(recent_count / minutes, 1)
+
+    # Protocol distribution
+    protocol_rows = (
+        db.query(TrafficFeatures.protocol, sqlfunc.count(TrafficFeatures.feature_id))
+        .group_by(TrafficFeatures.protocol)
+        .all()
+    )
+    protocol_counts = {row[0]: row[1] for row in protocol_rows}
+
+    # Packet size stats (avg, min, max)
+    size_stats = db.query(
+        sqlfunc.avg(TrafficFeatures.packet_size),
+        sqlfunc.min(TrafficFeatures.packet_size),
+        sqlfunc.max(TrafficFeatures.packet_size),
+    ).one()
+    avg_packet_size = round(float(size_stats[0]), 2) if size_stats[0] else 0.0
+    min_packet_size = round(float(size_stats[1]), 2) if size_stats[1] else 0.0
+    max_packet_size = round(float(size_stats[2]), 2) if size_stats[2] else 0.0
+
+    # Byte count stats
+    byte_stats = db.query(
+        sqlfunc.avg(TrafficFeatures.byte_count),
+        sqlfunc.min(TrafficFeatures.byte_count),
+        sqlfunc.max(TrafficFeatures.byte_count),
+    ).one()
+    avg_byte_count = round(float(byte_stats[0]), 2) if byte_stats[0] else 0.0
+    min_byte_count = int(byte_stats[1]) if byte_stats[1] else 0
+    max_byte_count = int(byte_stats[2]) if byte_stats[2] else 0
+
+    # Avg processing latency from detection_events
+    latency_avg = db.query(sqlfunc.avg(DetectionEvents.processing_latency_ms)).scalar()
+    avg_latency_ms = round(float(latency_avg), 2) if latency_avg else 0.0
+
+    # Latest timestamp as a status indicator
+    last_seen = latest_ts.isoformat() if latest_ts else None
+
+    return {
+        "total_features_extracted": total_features,
+        "recent_features": recent_count,
+        "throughput_per_min": throughput_per_min,
+        "window_minutes": minutes,
+        "protocol_counts": protocol_counts,
+        "avg_packet_size": avg_packet_size,
+        "min_packet_size": min_packet_size,
+        "max_packet_size": max_packet_size,
+        "avg_byte_count": avg_byte_count,
+        "min_byte_count": min_byte_count,
+        "max_byte_count": max_byte_count,
+        "avg_processing_latency_ms": avg_latency_ms,
+        "last_seen": last_seen,
+    }
+
+
 def get_attack_distribution(db: Session):
     """Count total attack events grouped by attack type across all traffic_features."""
     rows = (

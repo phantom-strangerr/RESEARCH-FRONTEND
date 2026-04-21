@@ -30,24 +30,43 @@ interface ModelHealthData {
   dl_attacks_flagged: number;
 }
 
+interface ExtractorHealthData {
+  total_features_extracted: number;
+  recent_features: number;
+  throughput_per_min: number;
+  window_minutes: number;
+  protocol_counts: Record<string, number>;
+  avg_packet_size: number;
+  min_packet_size: number;
+  max_packet_size: number;
+  avg_byte_count: number;
+  min_byte_count: number;
+  max_byte_count: number;
+  avg_processing_latency_ms: number;
+  last_seen: string | null;
+}
+
 export const SystemHealthPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'edge' | 'links' | 'model'>('edge');
+  const [activeTab, setActiveTab] = useState<'edge' | 'links' | 'model' | 'extractor'>('edge');
   const [healthData, setHealthData] = useState<DeviceHealthLog | null>(null);
   const [linkHealth, setLinkHealth] = useState<LinkHealthData | null>(null);
   const [modelHealth, setModelHealth] = useState<ModelHealthData | null>(null);
+  const [extractorHealth, setExtractorHealth] = useState<ExtractorHealthData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAll = async () => {
     try {
-      const [hwRes, linkRes, modelRes] = await Promise.allSettled([
+      const [hwRes, linkRes, modelRes, extractorRes] = await Promise.allSettled([
         deviceHealthAPI.getLatest(),
         dashboardAPI.getLinkHealth(),
         dashboardAPI.getModelHealth(),
+        dashboardAPI.getExtractorHealth(),
       ]);
-      if (hwRes.status === 'fulfilled') setHealthData(hwRes.value.data);
-      if (linkRes.status === 'fulfilled') setLinkHealth(linkRes.value.data);
-      if (modelRes.status === 'fulfilled') setModelHealth(modelRes.value.data);
+      if (hwRes.status       === 'fulfilled') setHealthData(hwRes.value.data);
+      if (linkRes.status     === 'fulfilled') setLinkHealth(linkRes.value.data);
+      if (modelRes.status    === 'fulfilled') setModelHealth(modelRes.value.data);
+      if (extractorRes.status === 'fulfilled') setExtractorHealth(extractorRes.value.data);
       setError(null);
     } catch {
       setError('Failed to load health data');
@@ -96,7 +115,7 @@ export const SystemHealthPage: React.FC = () => {
       {/* Tabs */}
       <div className="border-b border-gray-700">
         <nav className="flex space-x-8">
-          {(['edge', 'links', 'model'] as const).map((tab) => (
+          {(['edge', 'links', 'model', 'extractor'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -106,7 +125,7 @@ export const SystemHealthPage: React.FC = () => {
                   : 'border-transparent text-gray-500 hover:text-slate-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
               }`}
             >
-              {tab === 'edge' ? 'Edge Device' : tab === 'links' ? 'Link Health' : 'Model Health'}
+              {tab === 'edge' ? 'Edge Device' : tab === 'links' ? 'Link Health' : tab === 'model' ? 'Model Health' : 'Feature Extractor'}
             </button>
           ))}
         </nav>
@@ -330,6 +349,141 @@ export const SystemHealthPage: React.FC = () => {
               </div>
             )}
           </div>
+        </div>
+      )}
+      {/* Feature Extractor Tab */}
+      {activeTab === 'extractor' && (
+        <div className="space-y-6">
+          {isLoading ? (
+            <p className="text-sm text-gray-600 dark:text-gray-400">Loading extractor health data...</p>
+          ) : !extractorHealth ? (
+            <p className="text-sm text-red-500 dark:text-red-400">No feature extractor data available</p>
+          ) : (
+            <>
+              {/* Status + Throughput */}
+              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Feature Extractor Status</h2>
+                  {extractorHealth.last_seen && (
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      Last packet: {new Date(extractorHealth.last_seen).toLocaleTimeString()}
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                  <div className="p-4 bg-gray-900 rounded-lg">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Total Features Extracted</p>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{extractorHealth.total_features_extracted.toLocaleString()}</p>
+                  </div>
+                  <div className="p-4 bg-gray-900 rounded-lg">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Recent Features</p>
+                    <p className="text-2xl font-bold text-green-400">{extractorHealth.recent_features.toLocaleString()}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">last {extractorHealth.window_minutes} min</p>
+                  </div>
+                  <div className="p-4 bg-gray-900 rounded-lg">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Throughput</p>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{extractorHealth.throughput_per_min}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">features/min</p>
+                  </div>
+                  <div className="p-4 bg-gray-900 rounded-lg">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Avg Processing Latency</p>
+                    <p className={`text-2xl font-bold ${getStatusColor(extractorHealth.avg_processing_latency_ms, { warning: 100, critical: 300 })}`}>
+                      {extractorHealth.avg_processing_latency_ms} ms
+                    </p>
+                  </div>
+                </div>
+
+                {/* Extractor status row */}
+                <div className="mt-6 flex items-center justify-between p-4 bg-gray-900 rounded-lg border border-gray-700">
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-3 h-3 rounded-full ${extractorHealth.recent_features > 0 ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
+                    <div>
+                      <p className="text-base font-semibold text-slate-900 dark:text-white">Feature Extractor</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Packet capture → feature vector pipeline</p>
+                    </div>
+                  </div>
+                  <span className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                    extractorHealth.recent_features > 0
+                      ? 'bg-green-900/30 text-green-400'
+                      : 'bg-yellow-900/30 text-yellow-400'
+                  }`}>
+                    {extractorHealth.recent_features > 0 ? 'Active' : 'Idle'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Protocol Distribution */}
+              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-6">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Protocol Distribution</h2>
+                {Object.keys(extractorHealth.protocol_counts).length === 0 ? (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">No protocol data available</p>
+                ) : (
+                  <div className="space-y-3">
+                    {(() => {
+                      const total = Object.values(extractorHealth.protocol_counts).reduce((a, b) => a + b, 0);
+                      return Object.entries(extractorHealth.protocol_counts)
+                        .sort(([, a], [, b]) => b - a)
+                        .map(([protocol, count]) => {
+                          const pct = total ? Math.round((count / total) * 100) : 0;
+                          return (
+                            <div key={protocol}>
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm font-medium text-slate-700 dark:text-gray-300 uppercase">{protocol}</span>
+                                <span className="text-sm font-bold text-slate-900 dark:text-white">{count.toLocaleString()} <span className="text-xs text-gray-500 font-normal">({pct}%)</span></span>
+                              </div>
+                              <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <div className="h-full bg-green-500 rounded-full" style={{ width: `${pct}%` }} />
+                              </div>
+                            </div>
+                          );
+                        });
+                    })()}
+                  </div>
+                )}
+              </div>
+
+              {/* Packet & Byte Stats */}
+              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-6">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Packet & Byte Statistics</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm font-medium text-slate-700 dark:text-gray-300 mb-3">Packet Size (bytes)</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-3 bg-gray-900 rounded-lg text-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Min</p>
+                        <p className="text-lg font-bold text-slate-900 dark:text-white">{extractorHealth.min_packet_size}</p>
+                      </div>
+                      <div className="p-3 bg-gray-900 rounded-lg text-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Avg</p>
+                        <p className="text-lg font-bold text-green-400">{extractorHealth.avg_packet_size}</p>
+                      </div>
+                      <div className="p-3 bg-gray-900 rounded-lg text-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Max</p>
+                        <p className="text-lg font-bold text-slate-900 dark:text-white">{extractorHealth.max_packet_size}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-700 dark:text-gray-300 mb-3">Byte Count</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-3 bg-gray-900 rounded-lg text-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Min</p>
+                        <p className="text-lg font-bold text-slate-900 dark:text-white">{extractorHealth.min_byte_count.toLocaleString()}</p>
+                      </div>
+                      <div className="p-3 bg-gray-900 rounded-lg text-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Avg</p>
+                        <p className="text-lg font-bold text-green-400">{extractorHealth.avg_byte_count.toLocaleString()}</p>
+                      </div>
+                      <div className="p-3 bg-gray-900 rounded-lg text-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Max</p>
+                        <p className="text-lg font-bold text-slate-900 dark:text-white">{extractorHealth.max_byte_count.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

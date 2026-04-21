@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.dashboard import RecentPacket, RecentEvent, AlertDetail
-from app.services.dashboard_service import get_recent_packets, get_recent_events, get_alerts, get_dashboard_stats, get_traffic_timeline, get_link_health, get_model_health, get_attack_distribution
+from app.services.dashboard_service import get_recent_packets, get_recent_events, get_alerts, get_dashboard_stats, get_traffic_timeline, get_link_health, get_model_health, get_attack_distribution, get_extractor_health
 
 router = APIRouter()
 
@@ -45,6 +45,12 @@ def traffic_timeline(minutes: int = Query(default=10, ge=1, le=60), db: Session 
 def link_health(minutes: int = Query(default=10, ge=1, le=60), db: Session = Depends(get_db)):
     """Get live link health metrics derived from traffic_features."""
     return get_link_health(db, minutes)
+
+
+@router.get("/extractor-health")
+def extractor_health(minutes: int = Query(default=10, ge=1, le=60), db: Session = Depends(get_db)):
+    """Get feature extractor health: throughput, protocol distribution, packet/byte stats, latency."""
+    return get_extractor_health(db, minutes)
 
 
 @router.get("/attack-distribution")
