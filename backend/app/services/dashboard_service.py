@@ -158,12 +158,16 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
         .all()
     )
 
-    # Build per-minute buckets: start_naive … latest_minute (inclusive, N buckets)
-    buckets: dict[str, dict[str, int]] = {}
+    # Preserve tz for ISO output so the browser can localise the label
+    ts_tz = latest_ts_aware.tzinfo if (hasattr(latest_ts_aware, "tzinfo") and latest_ts_aware.tzinfo is not None) else None
+
+    # Build per-minute buckets keyed by HH:MM (naive UTC arithmetic)
+    buckets: dict[str, dict] = {}
     for i in range(minutes):
-        t = start_naive + timedelta(minutes=i)
-        label = t.strftime("%H:%M")
-        buckets[label] = {"normal": 0, "attack": 0}
+        t_naive = start_naive + timedelta(minutes=i)
+        label = t_naive.strftime("%H:%M")
+        iso = t_naive.replace(tzinfo=ts_tz).isoformat() if ts_tz else t_naive.isoformat()
+        buckets[label] = {"iso": iso, "normal": 0, "attack": 0}
 
     for row in rows:
         ts = row.timestamp
@@ -177,7 +181,7 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
                 buckets[label]["attack"] += 1
 
     return [
-        {"time": label, "normal": v["normal"], "attack": v["attack"]}
+        {"time": label, "iso": v["iso"], "normal": v["normal"], "attack": v["attack"]}
         for label, v in buckets.items()
     ]
 

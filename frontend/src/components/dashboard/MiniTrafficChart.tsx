@@ -4,6 +4,7 @@ import { dashboardAPI } from '../../services/api';
 
 interface TrafficPoint {
   time: string;
+  iso: string;
   normal: number;
   attack: number;
 }
@@ -50,7 +51,9 @@ export const MiniTrafficChart: React.FC = () => {
         <div className="space-y-2 flex-1">
           {dataPoints.map((point, index) => (
             <div key={index} className="flex items-center space-x-2">
-              <span className="text-xs font-mono text-gray-600 dark:text-gray-400 w-12">{point.time}</span>
+              <span className="text-xs font-mono text-gray-600 dark:text-gray-400 w-12">
+                {new Date(point.iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
+              </span>
               <div className="flex-1 flex h-4 bg-gray-900 rounded overflow-hidden">
                 <div
                   className="bg-green-500"
