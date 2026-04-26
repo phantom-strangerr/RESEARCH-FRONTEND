@@ -76,6 +76,8 @@ export const AlertsPage: React.FC = () => {
 
   useEffect(() => {
     fetchAlerts(0, false);
+    const interval = setInterval(() => fetchAlerts(0, false), 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const filteredAlerts = allAlerts.filter(alert => {

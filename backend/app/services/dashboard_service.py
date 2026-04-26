@@ -82,6 +82,7 @@ def get_alerts(db: Session, limit: int = 50, offset: int = 0):
             DetectionEvents.mitigation,
         )
         .join(DetectionEvents, TrafficFeatures.event_id == DetectionEvents.event_id)
+        .filter(TrafficFeatures.classification != "Normal")
         .order_by(TrafficFeatures.timestamp.desc())
         .offset(offset)
         .limit(limit)
