@@ -1,10 +1,41 @@
 from sqlalchemy.orm import Session
 from app.models.traffic_features import TrafficFeatures
+from app.models.detection_event import DetectionEvents
 from app.schemas.traffic_features import TrafficFeaturesCreate
+
+_SEVERITY_MAP = {
+    "dos":      "critical",
+    "mirai":    "high",
+    "replay":   "high",
+    "spoofing": "medium",
+}
 
 
 def create_traffic_features(db: Session, features: TrafficFeaturesCreate):
     payload = features.model_dump(exclude_unset=True)
+
+    # Auto-create detection event if the FK target doesn't exist yet.
+    # This handles batch processors that post traffic features before (or
+    # instead of) posting to /detection-events separately.
+    event_id = payload.get("event_id")
+    if event_id and not db.query(DetectionEvents.event_id).filter(
+        DetectionEvents.event_id == event_id
+    ).first():
+        classification = (payload.get("classification") or "Unknown").strip()
+        is_dl = bool(payload.get("dl"))
+        is_ml = bool(payload.get("ml"))
+        model_name = "DL" if is_dl else ("ML" if is_ml else "Unknown")
+        severity = _SEVERITY_MAP.get(classification.lower(), "medium")
+        db.add(DetectionEvents(
+            event_id=event_id,
+            attack_type=classification,
+            severity=severity,
+            model_name=model_name,
+            processing_latency_ms=0.0,
+            mitigation=None,
+        ))
+        db.flush()
+
     db_tf = TrafficFeatures(**payload)
     db.add(db_tf)
     db.commit()
