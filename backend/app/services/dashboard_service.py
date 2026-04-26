@@ -32,9 +32,6 @@ def _normalize_attack_type(raw: str) -> str:
 
 
 def get_recent_events(db: Session, limit: int = 5):
-    # Query directly from TrafficFeatures — it holds src_ip, ml, dl, and
-    # classification, so no join is needed.  event_id is the FK to
-    # detection_events and doubles as the unique event identifier.
     results = (
         db.query(
             TrafficFeatures.event_id,
@@ -43,7 +40,9 @@ def get_recent_events(db: Session, limit: int = 5):
             TrafficFeatures.src_ip,
             TrafficFeatures.ml,
             TrafficFeatures.dl,
+            DetectionEvents.model_name,
         )
+        .join(DetectionEvents, TrafficFeatures.event_id == DetectionEvents.event_id)
         .filter(TrafficFeatures.classification != "Normal")
         .order_by(TrafficFeatures.timestamp.desc())
         .limit(limit)
@@ -55,8 +54,7 @@ def get_recent_events(db: Session, limit: int = 5):
             "timestamp": r.timestamp,
             "attack_type": _normalize_attack_type(r.classification),
             "src_ip": r.src_ip,
-            "ml": r.ml,
-            "dl": r.dl,
+            **dict(zip(("ml", "dl"), _resolve_ml_dl(r.ml, r.dl, r.model_name))),
         }
         for r in results
     ]
@@ -103,8 +101,7 @@ def get_alerts(db: Session, limit: int = 50, offset: int = 0):
             "protocol": r.protocol,
             "byte_count": r.byte_count,
             "packet_size": r.packet_size,
-            "ml": r.ml,
-            "dl": r.dl,
+            **dict(zip(("ml", "dl"), _resolve_ml_dl(r.ml, r.dl, r.model_name))),
             "src_mac": None,
             "dst_mac": None,
         }
@@ -351,15 +348,39 @@ def get_attack_distribution(db: Session):
     return {"total": total, "counts": counts}
 
 
+def _resolve_ml_dl(ml: bool | None, dl: bool | None, model_name: str | None) -> tuple[bool, bool]:
+    """Derive ML/DL flags from model_name when boolean fields are unset."""
+    if ml is not None or dl is not None:
+        return bool(ml), bool(dl)
+    if not model_name:
+        return False, False
+    name = model_name.lower()
+    is_dl = any(x in name for x in ["cnn", "lstm", "rnn", "gru", "transformer", "dl", "deep", "neural", "dense"])
+    return not is_dl, is_dl
+
+
 def get_model_health(db: Session):
-    """Count detections attributed to ML vs DL models from traffic_features."""
-    rows = db.query(TrafficFeatures.ml, TrafficFeatures.dl, TrafficFeatures.classification).all()
+    """Count detections attributed to ML vs DL models, using model_name as fallback."""
+    rows = db.query(
+        TrafficFeatures.ml,
+        TrafficFeatures.dl,
+        TrafficFeatures.classification,
+        DetectionEvents.model_name,
+    ).join(DetectionEvents, TrafficFeatures.event_id == DetectionEvents.event_id).all()
 
     total = len(rows)
-    ml_detections = sum(1 for r in rows if r.ml is True)
-    dl_detections = sum(1 for r in rows if r.dl is True)
-    ml_attacks = sum(1 for r in rows if r.ml is True and r.classification and r.classification.lower() != "normal")
-    dl_attacks = sum(1 for r in rows if r.dl is True and r.classification and r.classification.lower() != "normal")
+    ml_detections, dl_detections, ml_attacks, dl_attacks = 0, 0, 0, 0
+    for r in rows:
+        is_ml, is_dl = _resolve_ml_dl(r.ml, r.dl, r.model_name)
+        is_attack = r.classification and r.classification.lower() != "normal"
+        if is_ml:
+            ml_detections += 1
+            if is_attack:
+                ml_attacks += 1
+        if is_dl:
+            dl_detections += 1
+            if is_attack:
+                dl_attacks += 1
 
     return {
         "total_records": total,
