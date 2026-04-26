@@ -14,8 +14,8 @@ interface LogEntry {
 const PAGE_SIZE = 100;
 
 const LOG_TABS = [
-  { key: 'edge',      label: 'Edge Device',        source: 'edge_device'       },
-  { key: 'extractor', label: 'Feature Extractor',  source: 'feature_extractor' },
+  { key: 'edge',      label: 'Edge Device',        source: 'telemetry/edge'      },
+  { key: 'extractor', label: 'Feature Extractor',  source: 'telemetry/extractor' },
 ] as const;
 
 type TabKey = typeof LOG_TABS[number]['key'];
