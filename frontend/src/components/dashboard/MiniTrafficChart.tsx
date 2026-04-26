@@ -14,7 +14,7 @@ export const MiniTrafficChart: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const res = await dashboardAPI.getTrafficTimeline(10);
+      const res = await dashboardAPI.getTrafficTimeline(6);
       setDataPoints(res.data);
     } catch {
       // keep previous data on error

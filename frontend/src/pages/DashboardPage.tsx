@@ -231,7 +231,7 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* ── Bottom Row: Traffic Chart ───────────────────────────────────────── */}
-      <div className="flex-shrink-0 h-36">
+      <div className="flex-shrink-0 h-64">
         <MiniTrafficChart />
       </div>
 
