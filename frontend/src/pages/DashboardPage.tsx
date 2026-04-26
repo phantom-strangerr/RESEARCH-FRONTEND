@@ -65,22 +65,10 @@ export const DashboardPage: React.FC = () => {
   } as const;
 
   return (
-    <div className="flex flex-col space-y-2 lg:h-full lg:overflow-hidden">
-
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between flex-shrink-0">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">SafeNode</h1>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Security Operations Center — real-time monitoring</p>
-        </div>
-        <div className="flex items-center space-x-2 text-xs">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-green-600 dark:text-green-400 font-medium">All Systems Operational</span>
-        </div>
-      </div>
+    <div className="flex flex-col space-y-4 lg:h-full lg:overflow-hidden">
 
       {/* ── Stat Cards ─────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:flex-shrink-0">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:flex-shrink-0">
         {/* Total Devices */}
         <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border-l-4 border-green-400 p-3 flex items-center justify-between">
           <div>
@@ -133,7 +121,7 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* ── Main Content Grid ───────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:flex-1 lg:min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:flex-1 lg:min-h-0">
 
         {/* Recent Events — spans 2 cols on lg */}
         <div className="lg:col-span-2 lg:min-h-0">
@@ -141,7 +129,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Right panel — stacked cards */}
-        <div className="lg:col-span-1 flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto">
+        <div className="lg:col-span-1 flex flex-col gap-4 lg:min-h-0 lg:overflow-y-auto">
 
           {/* Attack Distribution Donut */}
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4 flex-shrink-0">
