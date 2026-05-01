@@ -56,7 +56,7 @@ export const LivePacketsPage: React.FC = () => {
   // Search, filter, and sort logic
   const filteredPackets = allPackets.filter(packet => {
     // Type filter
-    const matchesType = filterType === 'all' || packet.classification === filterType;
+    const matchesType = filterType === 'all' || packet.classification.toLowerCase() === filterType.toLowerCase();
     const searchTerm = searchIP.trim().toLowerCase();
     const matchesSearch =
       searchTerm === '' ||
@@ -70,13 +70,13 @@ export const LivePacketsPage: React.FC = () => {
 
   const getClassificationColor = (classification: string) => {
     const colors: Record<string, string> = {
-      Normal: 'bg-green-900/30 text-green-400',
-      Mirai:    'bg-pink-900/20 text-pink-400',
-      DOS:      'bg-orange-900/20 text-orange-400',
-      Replay:   'bg-purple-900/20 text-purple-400',
-      Spoofing: 'bg-red-900/20 text-red-400',
+      normal:   'bg-green-900/30 text-green-400',
+      mirai:    'bg-pink-900/20 text-pink-400',
+      dos:      'bg-orange-900/20 text-orange-400',
+      replay:   'bg-purple-900/20 text-purple-400',
+      spoofing: 'bg-red-900/20 text-red-400',
     };
-    return colors[classification] ?? 'bg-gray-700 text-slate-700 dark:text-gray-300';
+    return colors[classification.toLowerCase()] ?? 'bg-gray-700 text-slate-700 dark:text-gray-300';
   };
 
   return (
