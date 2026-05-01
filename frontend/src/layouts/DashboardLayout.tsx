@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopNavbar } from './TopNavbar';
+import { CriticalAlertNotifier } from '../components/CriticalAlertNotifier';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -38,6 +39,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           {children}
         </main>
       </div>
+
+      <CriticalAlertNotifier />
     </div>
   );
 };

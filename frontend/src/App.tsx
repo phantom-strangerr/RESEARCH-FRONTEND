@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { AlertPrefsProvider } from './contexts/AlertPrefsContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { LoginPage } from './pages/LoginPage';
@@ -18,6 +19,7 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <AlertPrefsProvider>
         <Router>
           <Routes>
             {/* Public Routes */}
@@ -57,6 +59,7 @@ function App() {
             />
           </Routes>
         </Router>
+        </AlertPrefsProvider>
       </AuthProvider>
     </ThemeProvider>
   );

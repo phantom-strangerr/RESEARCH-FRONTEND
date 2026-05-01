@@ -41,6 +41,7 @@ export const AlertsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filterSeverity, setFilterSeverity] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
+  const [filterSource, setFilterSource] = useState<string>('all');
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
 
   const fetchAlerts = async (currentOffset = 0, append = false) => {
@@ -83,7 +84,12 @@ export const AlertsPage: React.FC = () => {
   const filteredAlerts = allAlerts.filter(alert => {
     const matchesSeverity = filterSeverity === 'all' || alert.severity === filterSeverity;
     const matchesType = filterType === 'all' || alert.attack_type === filterType;
-    return matchesSeverity && matchesType;
+    const matchesSource =
+      filterSource === 'all' ||
+      (filterSource === 'ml'   && !!alert.ml && !alert.dl) ||
+      (filterSource === 'dl'   && !!alert.dl && !alert.ml) ||
+      (filterSource === 'both' && !!alert.ml && !!alert.dl);
+    return matchesSeverity && matchesType && matchesSource;
   });
 
   const stats = {
@@ -175,7 +181,7 @@ export const AlertsPage: React.FC = () => {
 
           {/* Filters */}
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm font-medium text-slate-700 dark:text-gray-300 block mb-2">Severity</label>
                 <select
@@ -202,6 +208,19 @@ export const AlertsPage: React.FC = () => {
                   <option value="DOS">DOS</option>
                   <option value="Replay">Replay</option>
                   <option value="Spoofing">Spoofing</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-gray-300 block mb-2">Detection Source</label>
+                <select
+                  value={filterSource}
+                  onChange={(e) => setFilterSource(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="all">All Sources</option>
+                  <option value="ml">ML Only</option>
+                  <option value="dl">DL Only</option>
+                  <option value="both">Both ML &amp; DL</option>
                 </select>
               </div>
             </div>
