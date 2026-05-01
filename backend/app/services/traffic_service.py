@@ -43,9 +43,20 @@ def create_traffic_features(db: Session, features: TrafficFeaturesCreate):
     return db_tf
 
 
+# Maps filter button values to all possible DB variants (batch_processor stores abbreviated forms)
+_FILTER_ALIASES: dict[str, list[str]] = {
+    "spoofing": ["spoof", "spoofing"],
+    "dos":      ["dos"],
+    "mirai":    ["mirai"],
+    "replay":   ["replay"],
+    "normal":   ["normal"],
+}
+
+
 def get_traffic_features(db: Session, limit: int = 100, offset: int = 0, classification: str | None = None):
     from sqlalchemy import func as sqlfunc
     q = db.query(TrafficFeatures)
     if classification:
-        q = q.filter(sqlfunc.lower(TrafficFeatures.classification) == classification.lower())
+        variants = _FILTER_ALIASES.get(classification.lower(), [classification.lower()])
+        q = q.filter(sqlfunc.lower(TrafficFeatures.classification).in_(variants))
     return q.order_by(TrafficFeatures.timestamp.desc()).offset(offset).limit(limit).all()
