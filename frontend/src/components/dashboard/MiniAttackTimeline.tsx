@@ -7,7 +7,6 @@ interface RecentEvent {
   timestamp: string;
   attack_type: string;
   src_ip: string | null;
-  ml: boolean | null;
   dl: boolean | null;
 }
 
@@ -88,7 +87,6 @@ export const MiniAttackTimeline: React.FC = () => {
                 <th className="text-left pb-2 font-medium">Time</th>
                 <th className="text-left pb-2 font-medium">Type</th>
                 <th className="text-left pb-2 font-medium">Source IP</th>
-                <th className="text-center pb-2 font-medium">ML</th>
                 <th className="text-center pb-2 font-medium">DL</th>
               </tr>
             </thead>
@@ -106,12 +104,6 @@ export const MiniAttackTimeline: React.FC = () => {
                   </td>
                   <td className="py-2 text-center">
                     <span
-                      title={event.ml === true ? 'Detected by ML model' : event.ml === false ? 'Not detected by ML model' : 'No ML data'}
-                      className={`inline-block w-2.5 h-2.5 rounded-full ${event.ml === true ? 'bg-green-500' : event.ml === false ? 'bg-red-500' : 'bg-gray-400'}`}
-                    />
-                  </td>
-                  <td className="py-2 text-center">
-                    <span
                       title={event.dl === true ? 'Detected by DL model' : event.dl === false ? 'Not detected by DL model' : 'No DL data'}
                       className={`inline-block w-2.5 h-2.5 rounded-full ${event.dl === true ? 'bg-green-500' : event.dl === false ? 'bg-red-500' : 'bg-gray-400'}`}
                     />
@@ -124,7 +116,7 @@ export const MiniAttackTimeline: React.FC = () => {
           <div className="flex items-center space-x-4 mt-2 pt-2 border-t border-gray-700 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex items-center space-x-1">
               <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
-              <span>Threat identified</span>
+              <span>DL identified</span>
             </div>
             <div className="flex items-center space-x-1">
               <span className="inline-block w-2 h-2 rounded-full bg-red-500"></span>
