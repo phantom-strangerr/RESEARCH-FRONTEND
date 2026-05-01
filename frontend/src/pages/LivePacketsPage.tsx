@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { packetsAPI } from '../services/api';
 
@@ -19,17 +19,19 @@ export const LivePacketsPage: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
+  const filterTypeRef = useRef('all');
   const [searchIP, setSearchIP] = useState('');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
   const fetchPackets = async (currentOffset = 0, append = false) => {
+    const classification = filterTypeRef.current === 'all' ? undefined : filterTypeRef.current;
     try {
-      const response = await packetsAPI.getAllPackets(PAGE_SIZE, currentOffset);
+      const response = await packetsAPI.getAllPackets(PAGE_SIZE, currentOffset, classification);
       const newPackets: PacketData[] = response.data;
       setAllPackets(prev => append ? [...prev, ...newPackets] : newPackets);
-      setHasMore(newPackets.length > 0 && currentOffset === 0);
+      setHasMore(newPackets.length === PAGE_SIZE);
       setError(null);
     } catch (err) {
       console.error('Failed to fetch packets:', err);
@@ -40,11 +42,21 @@ export const LivePacketsPage: React.FC = () => {
     }
   };
 
+  // Initial load + auto-refresh (interval always reads latest filter via ref)
   useEffect(() => {
     fetchPackets(0, false);
     const interval = setInterval(() => fetchPackets(0, false), 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // Re-fetch from server whenever filter changes
+  useEffect(() => {
+    filterTypeRef.current = filterType;
+    setOffset(0);
+    setAllPackets([]);
+    setIsLoading(true);
+    fetchPackets(0, false);
+  }, [filterType]);
 
   const handleLoadMore = async () => {
     const newOffset = offset + PAGE_SIZE;
@@ -53,16 +65,14 @@ export const LivePacketsPage: React.FC = () => {
     await fetchPackets(newOffset, true);
   };
 
-  // Search, filter, and sort logic
+  // Search and sort logic (type filter is handled server-side)
   const filteredPackets = allPackets.filter(packet => {
-    // Type filter
-    const matchesType = filterType === 'all' || packet.classification.toLowerCase() === filterType.toLowerCase();
     const searchTerm = searchIP.trim().toLowerCase();
-    const matchesSearch =
+    return (
       searchTerm === '' ||
       packet.src_ip.toLowerCase().includes(searchTerm) ||
-      packet.dst_ip.toLowerCase().includes(searchTerm);
-    return matchesType && matchesSearch;
+      packet.dst_ip.toLowerCase().includes(searchTerm)
+    );
   }).sort((a, b) => {
     const diff = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
     return sortOrder === 'desc' ? -diff : diff;

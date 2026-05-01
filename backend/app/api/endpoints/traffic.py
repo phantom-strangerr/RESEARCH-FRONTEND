@@ -20,6 +20,7 @@ def create_features(features: TrafficFeaturesCreate, db: Session = Depends(get_d
 def get_features(
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
+    classification: str | None = Query(default=None),
     db: Session = Depends(get_db)
 ):
-    return get_traffic_features(db, limit, offset)
+    return get_traffic_features(db, limit, offset, classification)

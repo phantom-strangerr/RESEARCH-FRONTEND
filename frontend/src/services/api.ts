@@ -73,8 +73,8 @@ export const dashboardAPI = {
 
 // ─── Live Packets (traffic features) ──────────────────────────────────────────
 export const packetsAPI = {
-  getAllPackets: (limit: number = 100, offset: number = 0) =>
-    api.get('/api/v1/traffic-features', { params: { limit, offset } }),
+  getAllPackets: (limit: number = 100, offset: number = 0, classification?: string) =>
+    api.get('/api/v1/traffic-features', { params: { limit, offset, ...(classification ? { classification } : {}) } }),
 };
 
 // ─── Device Health ────────────────────────────────────────────────────────────

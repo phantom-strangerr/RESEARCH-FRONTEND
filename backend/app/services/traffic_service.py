@@ -43,5 +43,9 @@ def create_traffic_features(db: Session, features: TrafficFeaturesCreate):
     return db_tf
 
 
-def get_traffic_features(db: Session, limit: int = 100, offset: int = 0):
-    return db.query(TrafficFeatures).order_by(TrafficFeatures.timestamp.desc()).offset(offset).limit(limit).all()
+def get_traffic_features(db: Session, limit: int = 100, offset: int = 0, classification: str | None = None):
+    from sqlalchemy import func as sqlfunc
+    q = db.query(TrafficFeatures)
+    if classification:
+        q = q.filter(sqlfunc.lower(TrafficFeatures.classification) == classification.lower())
+    return q.order_by(TrafficFeatures.timestamp.desc()).offset(offset).limit(limit).all()
