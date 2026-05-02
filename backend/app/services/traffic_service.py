@@ -5,9 +5,9 @@ from app.schemas.traffic_features import TrafficFeaturesCreate
 
 _SEVERITY_MAP = {
     "dos":      "critical",
-    "mirai":    "high",
-    "replay":   "high",
-    "spoofing": "medium",
+    "mirai":    "critical",
+    "replay":   "critical",
+    "spoofing": "critical",
 }
 
 
