@@ -354,54 +354,6 @@ export const SystemHealthPage: React.FC = () => {
       {/* Feature Extractor Tab */}
       {activeTab === 'extractor' && (
         <div className="space-y-6">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Feature Extractor Metrics</h2>
-              {extractorHealth?.last_seen && (
-                <span className="text-xs text-gray-600 dark:text-gray-400">
-                  Last updated: {new Date(extractorHealth.last_seen).toLocaleTimeString()}
-                </span>
-              )}
-            </div>
-
-            {isLoading ? (
-              <p className="text-sm text-gray-600 dark:text-gray-400">Loading extractor data...</p>
-            ) : error || !extractorHealth ? (
-              <p className="text-sm text-red-500 dark:text-red-400">{error ?? 'No data available'}</p>
-            ) : (
-              <>
-                <div className="mb-6">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Throughput</span>
-                    <span className="text-sm font-bold text-green-600 dark:text-green-400">
-                      {extractorHealth.throughput_per_min} /min
-                    </span>
-                  </div>
-                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-green-500"
-                      style={{ width: `${Math.min((extractorHealth.throughput_per_min / 100) * 100, 100)}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-gray-700">
-                  <div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Total Features Extracted</p>
-                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">{extractorHealth.total_features_extracted.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Recent Features</p>
-                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                      {extractorHealth.recent_features.toLocaleString()}
-                      <span className="text-xs text-gray-500 font-normal ml-1">/ last {extractorHealth.window_minutes} min</span>
-                    </p>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-
           {/* Hardware Metrics */}
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-6">
             <div className="flex items-center justify-between mb-4">
@@ -470,6 +422,55 @@ export const SystemHealthPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Feature Extractor Metrics</h2>
+              {extractorHealth?.last_seen && (
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Last updated: {new Date(extractorHealth.last_seen).toLocaleTimeString()}
+                </span>
+              )}
+            </div>
+
+            {isLoading ? (
+              <p className="text-sm text-gray-600 dark:text-gray-400">Loading extractor data...</p>
+            ) : error || !extractorHealth ? (
+              <p className="text-sm text-red-500 dark:text-red-400">{error ?? 'No data available'}</p>
+            ) : (
+              <>
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Throughput</span>
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                      {extractorHealth.throughput_per_min} /min
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500"
+                      style={{ width: `${Math.min((extractorHealth.throughput_per_min / 100) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-gray-700">
+                  <div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Total Features Extracted</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">{extractorHealth.total_features_extracted.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Recent Features</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {extractorHealth.recent_features.toLocaleString()}
+                      <span className="text-xs text-gray-500 font-normal ml-1">/ last {extractorHealth.window_minutes} min</span>
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
         </div>
       )}
     </div>
