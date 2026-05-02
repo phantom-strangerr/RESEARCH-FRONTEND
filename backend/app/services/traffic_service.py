@@ -13,6 +13,9 @@ _SEVERITY_MAP = {
 
 def create_traffic_features(db: Session, features: TrafficFeaturesCreate):
     payload = features.model_dump(exclude_unset=True)
+    # Discard any timestamp from the batch processor — edge device clocks can drift.
+    # Let PostgreSQL server_default=func.now() stamp the record at server (UTC) time.
+    payload.pop('timestamp', None)
 
     # Auto-create detection event if the FK target doesn't exist yet.
     # This handles batch processors that post traffic features before (or

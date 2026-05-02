@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class TrafficFeaturesBase(BaseModel):
@@ -25,6 +25,14 @@ class TrafficFeaturesCreate(TrafficFeaturesBase):
 class TrafficFeatures(TrafficFeaturesBase):
     feature_id: UUID
     event_id: UUID
+    timestamp: datetime
+
+    @field_validator('timestamp', mode='before')
+    @classmethod
+    def ensure_utc(cls, v):
+        if isinstance(v, datetime) and v.tzinfo is None:
+            return v.replace(tzinfo=timezone.utc)
+        return v
 
     class Config:
         from_attributes = True
