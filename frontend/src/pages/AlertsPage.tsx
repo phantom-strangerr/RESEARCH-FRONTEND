@@ -321,14 +321,6 @@ export const AlertsPage: React.FC = () => {
                       <p className="font-mono text-slate-900 dark:text-white">{selectedAlert.dst_ip ?? '—'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600 dark:text-gray-400">Source MAC</p>
-                      <p className="font-mono text-xs text-slate-900 dark:text-white">{selectedAlert.src_mac ?? '—'}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 dark:text-gray-400">Destination MAC</p>
-                      <p className="font-mono text-xs text-slate-900 dark:text-white">{selectedAlert.dst_mac ?? '—'}</p>
-                    </div>
-                    <div>
                       <p className="text-gray-600 dark:text-gray-400">Packet Size</p>
                       <p className="font-medium text-slate-900 dark:text-white">
                         {selectedAlert.packet_size != null ? `${selectedAlert.packet_size}B` : '—'}
