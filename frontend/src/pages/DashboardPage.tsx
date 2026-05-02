@@ -69,11 +69,13 @@ export const DashboardPage: React.FC = () => {
 
       {/* ── Stat Cards ─────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:flex-shrink-0">
-        {/* Total Devices */}
+        {/* Active Devices */}
         <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border-l-4 border-green-400 p-3 flex items-center justify-between">
           <div>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Total Devices</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.total_devices ?? '—'}</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">Active Devices</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+              {stats ? stats.total_devices - stats.isolated_ports : '—'}
+            </p>
           </div>
           <svg className="w-8 h-8 text-green-400 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
