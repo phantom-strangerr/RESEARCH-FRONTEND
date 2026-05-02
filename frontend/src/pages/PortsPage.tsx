@@ -39,6 +39,8 @@ export const PortsPage: React.FC = () => {
   const [portToLift, setPortToLift] = useState<Port | null>(null);
   const [showIsolateModal, setShowIsolateModal] = useState(false);
   const [isolateReason, setIsolateReason] = useState('');
+  const [isolateError, setIsolateError] = useState<string | null>(null);
+  const [isolating, setIsolating] = useState(false);
   const [portToIsolate, setPortToIsolate] = useState<Port | null>(null);
   const [showManualIsolateModal, setShowManualIsolateModal] = useState(false);
   const [manualPortNumber, setManualPortNumber] = useState('');
@@ -82,26 +84,36 @@ export const PortsPage: React.FC = () => {
   };
 
   const handleIsolateSubmit = async () => {
-    if (!portToIsolate || !isolateReason.trim()) return;
+    if (!portToIsolate) return;
+    if (!isolateReason.trim()) {
+      setIsolateError('Please enter a reason for isolation.');
+      return;
+    }
+    setIsolating(true);
+    setIsolateError(null);
     try {
       await portsAPI.isolatePort(portToIsolate.port_id, {
         reason: isolateReason,
         isolated_by: 'manual',
       });
+      const id = portToIsolate.port_id;
       setShowIsolateModal(false);
       setPortToIsolate(null);
       setIsolateReason('');
-      setHighlightedPorts(prev => new Set(prev).add(portToIsolate.port_id));
+      setHighlightedPorts(prev => new Set(prev).add(id));
       setTimeout(() => {
         setHighlightedPorts(prev => {
           const next = new Set(prev);
-          next.delete(portToIsolate.port_id);
+          next.delete(id);
           return next;
         });
       }, 3000);
       fetchPorts();
-    } catch (err) {
-      console.error('Failed to isolate port:', err);
+    } catch (err: any) {
+      const msg = err?.response?.data?.detail || 'Failed to isolate port. Please try again.';
+      setIsolateError(msg);
+    } finally {
+      setIsolating(false);
     }
   };
 
@@ -432,15 +444,24 @@ export const PortsPage: React.FC = () => {
                   <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">Reason for Isolation: *</label>
                   <textarea
                     value={isolateReason}
-                    onChange={(e) => setIsolateReason(e.target.value)}
+                    onChange={(e) => { setIsolateReason(e.target.value); setIsolateError(null); }}
                     placeholder="e.g., Suspicious traffic detected..."
                     rows={3}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 resize-none"
+                    className={`w-full px-4 py-2 rounded-lg border bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500 resize-none ${isolateError && !isolateReason.trim() ? 'border-red-500' : 'border-gray-600'}`}
                   />
+                  {isolateError && (
+                    <p className="mt-2 text-xs text-red-400">{isolateError}</p>
+                  )}
                 </div>
                 <div className="flex space-x-3">
-                  <button onClick={() => { setShowIsolateModal(false); setPortToIsolate(null); setIsolateReason(''); }} className="flex-1 px-4 py-2 border border-gray-600 text-slate-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-700">Cancel</button>
-                  <button onClick={handleIsolateSubmit} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">Isolate Port</button>
+                  <button onClick={() => { setShowIsolateModal(false); setPortToIsolate(null); setIsolateReason(''); setIsolateError(null); }} className="flex-1 px-4 py-2 border border-gray-600 text-slate-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-700">Cancel</button>
+                  <button
+                    onClick={handleIsolateSubmit}
+                    disabled={isolating}
+                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-lg font-medium"
+                  >
+                    {isolating ? 'Isolating...' : 'Isolate Port'}
+                  </button>
                 </div>
               </div>
             </div>
