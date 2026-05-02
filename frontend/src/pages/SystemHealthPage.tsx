@@ -370,70 +370,22 @@ export const SystemHealthPage: React.FC = () => {
               <p className="text-sm text-red-500 dark:text-red-400">{error ?? 'No data available'}</p>
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Avg Processing Latency</span>
-                      <span className={`text-sm font-bold ${getStatusColor(extractorHealth.avg_processing_latency_ms, { warning: 100, critical: 300 })}`}>
-                        {extractorHealth.avg_processing_latency_ms} ms
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${getBarColor(extractorHealth.avg_processing_latency_ms, { warning: 100, critical: 300 })}`}
-                        style={{ width: `${Math.min((extractorHealth.avg_processing_latency_ms / 300) * 100, 100)}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Critical: &gt;300ms</p>
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Throughput</span>
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                      {extractorHealth.throughput_per_min} /min
+                    </span>
                   </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Throughput</span>
-                      <span className="text-sm font-bold text-green-600 dark:text-green-400">
-                        {extractorHealth.throughput_per_min} /min
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-green-500"
-                        style={{ width: `${Math.min((extractorHealth.throughput_per_min / 100) * 100, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Avg Packet Size</span>
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">
-                        {extractorHealth.avg_packet_size} B
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-green-500"
-                        style={{ width: `${Math.min((extractorHealth.avg_packet_size / 1500) * 100, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Avg Byte Count</span>
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">
-                        {(extractorHealth.avg_byte_count / 1024).toFixed(1)} KB
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-green-500"
-                        style={{ width: `${Math.min((extractorHealth.avg_byte_count / 1_500_000) * 100, 100)}%` }}
-                      />
-                    </div>
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500"
+                      style={{ width: `${Math.min((extractorHealth.throughput_per_min / 100) * 100, 100)}%` }}
+                    />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-700">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-gray-700">
                   <div>
                     <p className="text-xs text-gray-600 dark:text-gray-400">Total Features Extracted</p>
                     <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">{extractorHealth.total_features_extracted.toLocaleString()}</p>
