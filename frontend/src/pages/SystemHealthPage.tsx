@@ -401,6 +401,75 @@ export const SystemHealthPage: React.FC = () => {
               </>
             )}
           </div>
+
+          {/* Hardware Metrics */}
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Hardware Metrics</h2>
+              {healthData && (
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Last updated: {new Date(healthData.timestamp).toLocaleTimeString()}
+                </span>
+              )}
+            </div>
+
+            {isLoading ? (
+              <p className="text-sm text-gray-600 dark:text-gray-400">Loading health data...</p>
+            ) : !healthData ? (
+              <p className="text-sm text-red-500 dark:text-red-400">No hardware data available</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-slate-700 dark:text-gray-300">CPU Usage</span>
+                    <span className={`text-sm font-bold ${getStatusColor(healthData.cpu_usage_percent, { warning: 70, critical: 85 })}`}>
+                      {healthData.cpu_usage_percent.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div className={`h-full ${getBarColor(healthData.cpu_usage_percent, { warning: 70, critical: 85 })}`} style={{ width: `${healthData.cpu_usage_percent}%` }}></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-slate-700 dark:text-gray-300">CPU Temperature</span>
+                    <span className={`text-sm font-bold ${getStatusColor(healthData.cpu_temperature, { warning: 60, critical: 75 })}`}>
+                      {healthData.cpu_temperature.toFixed(1)}°C
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div className={`h-full ${getBarColor(healthData.cpu_temperature, { warning: 60, critical: 75 })}`} style={{ width: `${(healthData.cpu_temperature / 85) * 100}%` }}></div>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Critical: &gt;75°C</p>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Memory Usage</span>
+                    <span className={`text-sm font-bold ${getStatusColor(healthData.memory_usage_percent, { warning: 70, critical: 85 })}`}>
+                      {healthData.memory_usage_percent.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div className={`h-full ${getBarColor(healthData.memory_usage_percent, { warning: 70, critical: 85 })}`} style={{ width: `${healthData.memory_usage_percent}%` }}></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Disk Usage</span>
+                    <span className={`text-sm font-bold ${getStatusColor(healthData.disk_usage_percent, { warning: 70, critical: 85 })}`}>
+                      {healthData.disk_usage_percent.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div className={`h-full ${getBarColor(healthData.disk_usage_percent, { warning: 70, critical: 85 })}`} style={{ width: `${healthData.disk_usage_percent}%` }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
