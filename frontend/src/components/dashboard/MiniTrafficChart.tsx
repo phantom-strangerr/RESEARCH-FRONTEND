@@ -4,15 +4,14 @@ import { dashboardAPI } from '../../services/api';
 
 interface TrafficPoint {
   time: string;
+  iso: string;
   normal: number;
   attack: number;
 }
 
-const utcHHMMToLocal = (hhmm: string) => {
-  const [h, m] = hhmm.split(':').map(Number);
-  if (isNaN(h) || isNaN(m)) return hhmm;
-  const d = new Date();
-  d.setUTCHours(h, m, 0, 0);
+const isoToLocalHHMM = (iso: string) => {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
   return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
@@ -59,7 +58,7 @@ export const MiniTrafficChart: React.FC = () => {
           {dataPoints.map((point, index) => (
             <div key={index} className="flex items-center space-x-2">
               <span className="text-xs font-mono text-gray-600 dark:text-gray-400 w-12">
-                {utcHHMMToLocal(point.time)}
+                {isoToLocalHHMM(point.iso)}
               </span>
               <div className="flex-1 flex h-4 bg-gray-900 rounded overflow-hidden">
                 <div
