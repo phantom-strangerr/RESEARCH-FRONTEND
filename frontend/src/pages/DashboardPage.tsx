@@ -10,7 +10,7 @@ import { dashboardAPI } from '../services/api'; // backend connections commented
 
 ChartJS.register(ArcElement, Tooltip);
 
-interface Stats              { total_devices: number; isolated_ports: number; }
+interface Stats              { total_devices: number; isolated_ports: number; active_ports: number; }
 interface LinkHealth         { total_packets: number; normal_packets: number; attack_packets: number; success_rate: number; packet_rate_per_min: number; window_minutes: number; }
 interface AttackDistribution { total: number; counts: Record<string, number>; }
 
@@ -74,7 +74,7 @@ export const DashboardPage: React.FC = () => {
           <div>
             <p className="text-xs text-gray-600 dark:text-gray-400">Active Devices</p>
             <p className="text-2xl font-bold text-slate-900 dark:text-white">
-              {stats ? stats.total_devices - stats.isolated_ports : '—'}
+              {stats?.active_ports ?? '—'}
             </p>
           </div>
           <svg className="w-8 h-8 text-green-400 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
