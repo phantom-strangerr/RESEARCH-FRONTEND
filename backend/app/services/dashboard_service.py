@@ -63,9 +63,19 @@ def get_recent_events(db: Session, limit: int = 5):
     ]
 
 
-def get_alerts(db: Session, limit: int = 50, offset: int = 0):
+# Expand attack-type filter values to all DB spellings used by the batch processor
+_ALERT_TYPE_ALIASES: dict[str, list[str]] = {
+    "spoofing": ["spoof", "spoofing"],
+    "dos":      ["dos"],
+    "mirai":    ["mirai"],
+    "replay":   ["replay"],
+}
+
+
+def get_alerts(db: Session, limit: int = 50, offset: int = 0,
+               severity: str | None = None, attack_type: str | None = None):
     """Get detection events with joined traffic data for Alerts page (paginated)."""
-    results = (
+    q = (
         db.query(
             TrafficFeatures.event_id,
             TrafficFeatures.timestamp,
@@ -84,11 +94,13 @@ def get_alerts(db: Session, limit: int = 50, offset: int = 0):
         )
         .join(DetectionEvents, TrafficFeatures.event_id == DetectionEvents.event_id)
         .filter(TrafficFeatures.classification != "Normal")
-        .order_by(TrafficFeatures.timestamp.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
     )
+    if severity:
+        q = q.filter(func.lower(DetectionEvents.severity) == severity.lower())
+    if attack_type:
+        variants = _ALERT_TYPE_ALIASES.get(attack_type.lower(), [attack_type.lower()])
+        q = q.filter(func.lower(TrafficFeatures.classification).in_(variants))
+    results = q.order_by(TrafficFeatures.timestamp.desc()).offset(offset).limit(limit).all()
 
     return [
         {

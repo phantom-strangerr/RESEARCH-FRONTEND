@@ -49,8 +49,8 @@ export const dashboardAPI = {
   getRecentEvents: (limit: number = 5) =>
     api.get('/api/v1/dashboard/recent-events', { params: { limit } }),
 
-  getAlerts: (limit = 50, offset = 0) =>
-    api.get('/api/v1/dashboard/alerts', { params: { limit, offset } }),
+  getAlerts: (limit = 50, offset = 0, severity?: string, attack_type?: string) =>
+    api.get('/api/v1/dashboard/alerts', { params: { limit, offset, ...(severity ? { severity } : {}), ...(attack_type ? { attack_type } : {}) } }),
 
   getAlertStats: () =>
     api.get('/api/v1/dashboard/alerts/stats'),

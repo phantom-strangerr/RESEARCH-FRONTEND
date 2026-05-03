@@ -29,10 +29,12 @@ def alerts_stats(db: Session = Depends(get_db)):
 def alerts(
     limit: int = Query(default=50, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
+    severity: str | None = Query(default=None),
+    attack_type: str | None = Query(default=None),
     db: Session = Depends(get_db)
 ):
     """Get alerts with full details for Alerts page (paginated)."""
-    return get_alerts(db, limit, offset)
+    return get_alerts(db, limit, offset, severity, attack_type)
 
 
 @router.get("/stats")

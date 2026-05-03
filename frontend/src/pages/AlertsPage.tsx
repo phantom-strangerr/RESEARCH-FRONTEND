@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { dashboardAPI } from '../services/api';
 
@@ -43,11 +43,17 @@ export const AlertsPage: React.FC = () => {
   const [filterType, setFilterType] = useState<string>('all');
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
 
-  // Fetch alerts and stats in parallel; tolerate partial failures with allSettled
+  // Refs keep the auto-refresh interval in sync with the latest filter values
+  const filterSeverityRef = useRef('all');
+  const filterTypeRef = useRef('all');
+
+  // Fetch alerts server-side using current filter refs to avoid stale closures
   const fetchAlerts = async (currentOffset = 0, append = false) => {
+    const severity = filterSeverityRef.current !== 'all' ? filterSeverityRef.current : undefined;
+    const attack_type = filterTypeRef.current !== 'all' ? filterTypeRef.current : undefined;
     try {
       const [alertsRes, statsRes] = await Promise.allSettled([
-        dashboardAPI.getAlerts(PAGE_SIZE, currentOffset),
+        dashboardAPI.getAlerts(PAGE_SIZE, currentOffset, severity, attack_type),
         dashboardAPI.getAlertStats(),
       ]);
       if (alertsRes.status === 'fulfilled') {
@@ -76,18 +82,33 @@ export const AlertsPage: React.FC = () => {
     fetchAlerts(newOffset, true);
   };
 
+  // Initial load + auto-refresh (interval always reads latest filter via refs)
   useEffect(() => {
     fetchAlerts(0, false);
     const interval = setInterval(() => fetchAlerts(0, false), 5000);
     return () => clearInterval(interval);
   }, []);
 
-  // Apply severity and attack-type filters client-side on the already-fetched page
-  const filteredAlerts = allAlerts.filter(alert => {
-    const matchesSeverity = filterSeverity === 'all' || alert.severity === filterSeverity;
-    const matchesType = filterType === 'all' || alert.attack_type === filterType;
-    return matchesSeverity && matchesType;
-  });
+  // Re-fetch from server when severity filter changes
+  useEffect(() => {
+    filterSeverityRef.current = filterSeverity;
+    setOffset(0);
+    setAllAlerts([]);
+    setIsLoading(true);
+    fetchAlerts(0, false);
+  }, [filterSeverity]);
+
+  // Re-fetch from server when attack type filter changes
+  useEffect(() => {
+    filterTypeRef.current = filterType;
+    setOffset(0);
+    setAllAlerts([]);
+    setIsLoading(true);
+    fetchAlerts(0, false);
+  }, [filterType]);
+
+  // Alerts are already filtered server-side; no client-side filter needed
+  const filteredAlerts = allAlerts;
 
   // Fall back to counting the local array if the stats endpoint hasn't responded yet
   const stats = {
