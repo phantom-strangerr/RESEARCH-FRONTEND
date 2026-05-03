@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { portsAPI } from '../services/api';
+import { portsAPI, authAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Port {
   port_id: string;
@@ -31,12 +32,15 @@ const PROTECTED_PORTS: Record<number, string> = {
 };
 
 export const PortsPage: React.FC = () => {
+  const { user } = useAuth();
   const [ports, setPorts] = useState<Port[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authCode, setAuthCode] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
   const [portToLift, setPortToLift] = useState<Port | null>(null);
   const [showIsolateModal, setShowIsolateModal] = useState(false);
   const [isolateReason, setIsolateReason] = useState('');
@@ -123,13 +127,18 @@ export const PortsPage: React.FC = () => {
 
   const handleLiftClick = (port: Port) => {
     setPortToLift(port);
+    setAuthCode('');
+    setAuthError(null);
     setShowAuthModal(true);
   };
 
-  // Gate isolation-lift behind a hardcoded demo auth code before calling the API
+  // Verify the logged-in user's actual password before lifting isolation
   const handleAuthSubmit = async () => {
-    if (authCode !== '1234' || !portToLift) return;
+    if (!authCode.trim() || !portToLift) return;
+    setAuthLoading(true);
+    setAuthError(null);
     try {
+      await authAPI.verifyPassword(authCode);
       await portsAPI.liftIsolation(portToLift.port_id);
       setShowAuthModal(false);
       setAuthCode('');
@@ -143,8 +152,14 @@ export const PortsPage: React.FC = () => {
       }, 3000);
       setPortToLift(null);
       fetchPorts();
-    } catch (err) {
-      console.error('Failed to lift isolation:', err);
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        setAuthError('Incorrect password. Please try again.');
+      } else {
+        setAuthError('Failed to lift isolation. Try again.');
+      }
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -410,19 +425,25 @@ export const PortsPage: React.FC = () => {
                       <strong>Warning:</strong> This device was isolated due to: {portToLift?.isolation_reason}
                     </p>
                   </div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">Enter Authorization Code:</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">
+                    Enter password for <span className="text-green-400">{user?.full_name ?? user?.username}</span>:
+                  </label>
                   <input
                     type="password"
                     value={authCode}
-                    onChange={(e) => setAuthCode(e.target.value)}
-                    placeholder="Enter code (demo: 1234)"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500"
+                    onChange={(e) => { setAuthCode(e.target.value); setAuthError(null); }}
+                    placeholder="Your login password"
+                    className={`w-full px-4 py-2 rounded-lg border bg-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 ${authError ? 'border-red-500' : 'border-gray-600'}`}
                     onKeyDown={(e) => e.key === 'Enter' && handleAuthSubmit()}
+                    disabled={authLoading}
                   />
+                  {authError && <p className="text-xs text-red-400 mt-2">{authError}</p>}
                 </div>
                 <div className="flex space-x-3">
-                  <button onClick={() => setShowAuthModal(false)} className="flex-1 px-4 py-2 border border-gray-600 text-slate-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-700">Cancel</button>
-                  <button onClick={handleAuthSubmit} className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium">Authorize & Lift</button>
+                  <button onClick={() => { setShowAuthModal(false); setAuthCode(''); setAuthError(null); }} className="flex-1 px-4 py-2 border border-gray-600 text-slate-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-700">Cancel</button>
+                  <button onClick={handleAuthSubmit} disabled={authLoading || !authCode.trim()} className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white rounded-lg font-medium">
+                    {authLoading ? 'Verifying...' : 'Authorize & Lift'}
+                  </button>
                 </div>
               </div>
             </div>

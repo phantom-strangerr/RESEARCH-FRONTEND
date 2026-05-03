@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import LoginRequest, TokenResponse, UserOut
 from app.services.auth_service import authenticate_user, update_last_login, seed_users
-from app.utils.security import create_access_token
+from app.utils.security import create_access_token, verify_password
 from app.api.deps import get_current_user
 
 router = APIRouter()
@@ -44,6 +45,21 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 def get_me(current_user: User = Depends(get_current_user)):
     """Get current authenticated user's profile."""
     return current_user
+
+
+class PasswordVerifyRequest(BaseModel):
+    password: str
+
+
+@router.post("/verify-password")
+def verify_current_user_password(
+    body: PasswordVerifyRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """Verify the currently logged-in user's password (used to confirm sensitive actions)."""
+    if not verify_password(body.password, current_user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
+    return {"valid": True}
 
 
 @router.post("/seed")

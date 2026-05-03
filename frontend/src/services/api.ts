@@ -36,6 +36,9 @@ export const authAPI = {
 
   getMe: () =>
     api.get('/api/v1/auth/me'),
+
+  verifyPassword: (password: string) =>
+    api.post('/api/v1/auth/verify-password', { password }),
 };
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
