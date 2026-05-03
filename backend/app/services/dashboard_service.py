@@ -19,6 +19,7 @@ def get_recent_packets(db: Session, limit: int = 5):
     ]
 
 
+# Normalise raw classification strings from the batch processor to display names
 _ATTACK_TYPE_ALIASES = {
     "spoof":    "Spoofing",
     "spoofing": "Spoofing",
@@ -27,10 +28,12 @@ _ATTACK_TYPE_ALIASES = {
     "replay":   "Replay",
 }
 
+# Strip whitespace and map abbreviated names; fall back to the original if unknown
 def _normalize_attack_type(raw: str) -> str:
     return _ATTACK_TYPE_ALIASES.get(raw.strip().lower(), raw)
 
 
+# Join traffic features with detection events to build the dashboard recent-attacks feed
 def get_recent_events(db: Session, limit: int = 5):
     results = (
         db.query(
@@ -109,6 +112,7 @@ def get_alerts(db: Session, limit: int = 50, offset: int = 0):
     ]
 
 
+# Count total, isolated, and active switch ports for the dashboard stat cards
 def get_dashboard_stats(db: Session):
     total_devices = db.query(SwitchPort).count()
     isolated_ports = db.query(SwitchPort).filter(SwitchPort.status == "isolated").count()
@@ -125,7 +129,7 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
     """
     from sqlalchemy import func as sqlfunc
 
-    # Use the latest stored timestamp as anchor (timezone-safe)
+    # Anchor the window to the most recent record so the chart works regardless of clock drift
     latest_ts = db.query(sqlfunc.max(TrafficFeatures.timestamp)).scalar()
     if latest_ts is None:
         return [{"time": "—", "normal": 0, "attack": 0}]
@@ -159,7 +163,7 @@ def get_traffic_timeline(db: Session, minutes: int = 10):
     # Preserve tz for ISO output so the browser can localise the label
     ts_tz = latest_ts_aware.tzinfo if (hasattr(latest_ts_aware, "tzinfo") and latest_ts_aware.tzinfo is not None) else None
 
-    # Build per-minute buckets keyed by HH:MM (naive UTC arithmetic)
+    # Pre-fill all N minute slots so gaps in traffic still appear as zero bars
     buckets: dict[str, dict] = {}
     for i in range(minutes):
         t_naive = start_naive + timedelta(minutes=i)
@@ -349,6 +353,7 @@ def get_attack_distribution(db: Session):
     return {"total": total, "counts": counts}
 
 
+# Infer ML/DL flags from model_name keywords when the boolean columns are null
 def _resolve_ml_dl(ml: bool | None, dl: bool | None, model_name: str | None) -> tuple[bool, bool]:
     """Derive ML/DL flags from model_name when boolean fields are unset."""
     if ml is not None or dl is not None:

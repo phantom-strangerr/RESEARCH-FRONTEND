@@ -23,6 +23,7 @@ interface Port {
   updated_at: string | null;
 }
 
+// Ports reserved for infrastructure roles — isolating these would break the pipeline
 const PROTECTED_PORTS: Record<number, string> = {
   1:  'Feature Extractor',
   2:  'Edge Processor',
@@ -70,6 +71,7 @@ export const PortsPage: React.FC = () => {
     return filterStatus === 'all' || port.status === filterStatus;
   });
 
+  // Derive per-status counts from the live ports list for the stat cards
   const stats = {
     total: ports.length,
     active: ports.filter(p => p.status === 'active').length,
@@ -77,12 +79,14 @@ export const PortsPage: React.FC = () => {
     warning: ports.filter(p => p.status === 'warning').length,
   };
 
+  // Block isolation attempts on infrastructure ports before showing the modal
   const handleIsolateClick = (port: Port) => {
     if (PROTECTED_PORTS[port.port_number]) return;
     setPortToIsolate(port);
     setShowIsolateModal(true);
   };
 
+  // Validate reason, call the isolate API, then briefly highlight the affected port card
   const handleIsolateSubmit = async () => {
     if (!portToIsolate) return;
     if (!isolateReason.trim()) {
@@ -122,6 +126,7 @@ export const PortsPage: React.FC = () => {
     setShowAuthModal(true);
   };
 
+  // Gate isolation-lift behind a hardcoded demo auth code before calling the API
   const handleAuthSubmit = async () => {
     if (authCode !== '1234' || !portToLift) return;
     try {
@@ -143,6 +148,7 @@ export const PortsPage: React.FC = () => {
     }
   };
 
+  // Resolve a port number typed by the operator to a port ID, then isolate it
   const handleManualIsolateSubmit = async () => {
     const portNum = parseInt(manualPortNumber);
     if (!portNum || !manualIsolateReason.trim()) return;
@@ -163,6 +169,7 @@ export const PortsPage: React.FC = () => {
     }
   };
 
+  // Map port status to a Tailwind text colour for icons and labels
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       active:   'text-green-500',
@@ -173,6 +180,7 @@ export const PortsPage: React.FC = () => {
     return colors[status] ?? 'text-gray-500';
   };
 
+  // Map port status to a Tailwind border colour for the card outline
   const getBorderColor = (status: string) => {
     const colors: Record<string, string> = {
       active:   'border-green-500',

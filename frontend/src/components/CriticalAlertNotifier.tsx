@@ -17,6 +17,7 @@ type IsolateState = 'idle' | 'loading' | 'success' | 'not_found' | 'already_isol
 const SEEN_KEY = 'safenode_seen_critical_ids';
 const POLL_INTERVAL_MS = 10_000;
 
+// Restore previously seen alert IDs from localStorage to survive page reloads
 function loadSeenIds(): Set<string> {
   try {
     const raw = localStorage.getItem(SEEN_KEY);
@@ -26,6 +27,7 @@ function loadSeenIds(): Set<string> {
   }
 }
 
+// Append a new seen ID and cap the stored list to the latest 500 entries
 function persistSeenId(id: string) {
   const ids = loadSeenIds();
   ids.add(id);
@@ -40,6 +42,7 @@ export const CriticalAlertNotifier: React.FC = () => {
   const seenRef = useRef<Set<string>>(loadSeenIds());
   const initialLoadDone = useRef(false);
 
+  // Poll the API every 10 s and surface only alerts not previously seen
   const poll = useCallback(async () => {
     try {
       const res = await dashboardAPI.getAlerts(20, 0);
@@ -76,6 +79,7 @@ export const CriticalAlertNotifier: React.FC = () => {
     return () => clearInterval(timer);
   }, [poll]);
 
+  // Remove a notification from the visible queue and clear its isolate state
   const dismiss = (id: string) => {
     setQueue((prev) => prev.filter((n) => n.event_id !== id));
     setIsolateState((prev) => {
@@ -85,6 +89,7 @@ export const CriticalAlertNotifier: React.FC = () => {
     });
   };
 
+  // Resolve the alert's source IP to a switch port and trigger isolation via the API
   const handleIsolate = async (alert: CriticalAlert) => {
     setIsolateState((prev) => ({ ...prev, [alert.event_id]: 'loading' }));
     try {

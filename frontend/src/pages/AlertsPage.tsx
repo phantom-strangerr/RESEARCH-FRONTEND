@@ -43,6 +43,7 @@ export const AlertsPage: React.FC = () => {
   const [filterType, setFilterType] = useState<string>('all');
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
 
+  // Fetch alerts and stats in parallel; tolerate partial failures with allSettled
   const fetchAlerts = async (currentOffset = 0, append = false) => {
     try {
       const [alertsRes, statsRes] = await Promise.allSettled([
@@ -67,6 +68,7 @@ export const AlertsPage: React.FC = () => {
 
   const handleRetry = () => fetchAlerts(0, false);
 
+  // Append the next page to the current list without resetting scroll position
   const handleLoadMore = () => {
     const newOffset = offset + PAGE_SIZE;
     setOffset(newOffset);
@@ -80,18 +82,21 @@ export const AlertsPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Apply severity and attack-type filters client-side on the already-fetched page
   const filteredAlerts = allAlerts.filter(alert => {
     const matchesSeverity = filterSeverity === 'all' || alert.severity === filterSeverity;
     const matchesType = filterType === 'all' || alert.attack_type === filterType;
     return matchesSeverity && matchesType;
   });
 
+  // Fall back to counting the local array if the stats endpoint hasn't responded yet
   const stats = {
     total:    alertStats?.total    ?? allAlerts.length,
     critical: alertStats?.critical ?? allAlerts.filter(a => a.severity === 'critical').length,
     high:     alertStats?.high     ?? allAlerts.filter(a => a.severity === 'high').length,
   };
 
+  // Map severity levels to Tailwind badge colour classes
   const getSeverityColor = (severity: string) => {
     const colors: Record<string, string> = {
       critical: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-300 dark:border-red-700',
@@ -102,6 +107,7 @@ export const AlertsPage: React.FC = () => {
     return colors[severity] ?? '';
   };
 
+  // Map each attack type to a distinct text colour for quick visual scanning
   const getAttackTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       Mirai:    'text-pink-600 dark:text-pink-400',
@@ -112,6 +118,7 @@ export const AlertsPage: React.FC = () => {
     return colors[type] ?? 'text-gray-600';
   };
 
+  // Convert snake_case mitigation strings to title-case for display
   const formatMitigation = (mitigation: string | null) => {
     if (!mitigation) return '—';
     return mitigation.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());

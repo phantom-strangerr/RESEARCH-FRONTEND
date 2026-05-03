@@ -3,6 +3,7 @@ from app.models.traffic_features import TrafficFeatures
 from app.models.detection_event import DetectionEvents
 from app.schemas.traffic_features import TrafficFeaturesCreate
 
+# All four known attack classes are treated as critical severity
 _SEVERITY_MAP = {
     "dos":      "critical",
     "mirai":    "critical",
@@ -11,6 +12,7 @@ _SEVERITY_MAP = {
 }
 
 
+# Accept incoming feature records and auto-create a DetectionEvent stub if the FK is missing
 def create_traffic_features(db: Session, features: TrafficFeaturesCreate):
     payload = features.model_dump(exclude_unset=True)
     # Discard any timestamp from the batch processor — edge device clocks can drift.
@@ -46,7 +48,7 @@ def create_traffic_features(db: Session, features: TrafficFeaturesCreate):
     return db_tf
 
 
-# Maps filter button values to all possible DB variants (batch_processor stores abbreviated forms)
+# Expand a single filter value to all abbreviated spellings stored by the batch processor
 _FILTER_ALIASES: dict[str, list[str]] = {
     "spoofing": ["spoof", "spoofing"],
     "dos":      ["dos"],
@@ -56,6 +58,7 @@ _FILTER_ALIASES: dict[str, list[str]] = {
 }
 
 
+# Return paginated traffic features, resolving the classification filter through the alias map
 def get_traffic_features(db: Session, limit: int = 100, offset: int = 0, classification: str | None = None):
     from sqlalchemy import func as sqlfunc
     q = db.query(TrafficFeatures)

@@ -25,6 +25,7 @@ export const LivePacketsPage: React.FC = () => {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
+  // Read filter from ref so the polling interval always uses the current value without re-registering
   const fetchPackets = async (currentOffset = 0, append = false) => {
     const classification = filterTypeRef.current === 'all' ? undefined : filterTypeRef.current;
     try {
@@ -58,6 +59,7 @@ export const LivePacketsPage: React.FC = () => {
     fetchPackets(0, false);
   }, [filterType]);
 
+  // Fetch the next page and append it to the existing list
   const handleLoadMore = async () => {
     const newOffset = offset + PAGE_SIZE;
     setOffset(newOffset);
@@ -65,7 +67,7 @@ export const LivePacketsPage: React.FC = () => {
     await fetchPackets(newOffset, true);
   };
 
-  // Search and sort logic (type filter is handled server-side)
+  // IP search is client-side; classification filter is delegated to the server
   const filteredPackets = allPackets.filter(packet => {
     const searchTerm = searchIP.trim().toLowerCase();
     return (
@@ -78,6 +80,7 @@ export const LivePacketsPage: React.FC = () => {
     return sortOrder === 'desc' ? -diff : diff;
   });
 
+  // Map each attack classification to a distinct badge colour
   const getClassificationColor = (classification: string) => {
     const colors: Record<string, string> = {
       normal:   'bg-green-900/30 text-green-400',

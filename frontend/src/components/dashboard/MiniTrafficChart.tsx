@@ -9,6 +9,7 @@ interface TrafficPoint {
   attack: number;
 }
 
+// Convert an ISO timestamp to the browser's local HH:MM for chart axis labels
 const isoToLocalHHMM = (iso: string) => {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
@@ -36,6 +37,7 @@ export const MiniTrafficChart: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Scale all bars relative to the busiest minute; clamp to 1 to avoid division by zero
   const maxValue = dataPoints.length
     ? Math.max(...dataPoints.map((p) => p.normal + p.attack), 1)
     : 1;
