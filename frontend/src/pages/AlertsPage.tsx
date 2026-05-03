@@ -265,16 +265,8 @@ export const AlertsPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Bottom-left — ML / DL detection labels */}
+                  {/* Bottom-left — DL detection label */}
                   <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-gray-700">
-                    {alert.ml && (
-                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-green-900/30 text-green-400 border border-green-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                        </svg>
-                        <span>ML Detected</span>
-                      </span>
-                    )}
                     {alert.dl && (
                       <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700">
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,14 +344,6 @@ export const AlertsPage: React.FC = () => {
                     <div>
                       <p className="text-gray-600 dark:text-gray-400 mb-2">Detection Source</p>
                       <div className="flex items-center space-x-2">
-                        {selectedAlert.ml && (
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-green-900/30 text-green-400 border border-green-700">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                            </svg>
-                            <span>ML Detected</span>
-                          </span>
-                        )}
                         {selectedAlert.dl && (
                           <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700">
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
